@@ -7,6 +7,9 @@
     "build": "remix vite:build",
     "dev": "remix vite:dev",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
+    "lint:write": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint --fix .",
+    "format": "prettier --check .",
+    "format:write": "prettier --write .",
     "start": "remix-serve ./build/server/index.js",
     "typecheck": "tsc"
   },
@@ -32,6 +35,7 @@
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "postcss": "^8.4.38",
+    "prettier": "^3.3.3",
     "tailwindcss": "^3.4.4",
     "typescript": "^5.1.6",
     "vite": "^5.1.0",
