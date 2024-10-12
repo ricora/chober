@@ -14,5 +14,5 @@ export default function Home() {
         </Box>
       </HStack>
     </div>
-  );
+  )
 }

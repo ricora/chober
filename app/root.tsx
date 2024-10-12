@@ -50,5 +50,5 @@ export default function App() {
         <Scripts />
       </body>
     </html>
-  );
+  )
 }
