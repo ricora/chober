@@ -1,15 +1,15 @@
-import { Box, Button, Input, Stack, Text } from "@chakra-ui/react";
-import { FC, memo } from "react";
-import { TypeProduct } from "~/type/typeproduct";
+import { Box, Button, Input, Stack, Text } from "@chakra-ui/react"
+import { FC, memo } from "react"
+import { TypeProduct } from "~/type/typeproduct"
 
 type Props = {
-  product: TypeProduct;
-  addOrder: (product: TypeProduct) => void;
-  cancelOrder: (product: TypeProduct) => void;
-};
+  product: TypeProduct
+  addOrder: (product: TypeProduct) => void
+  cancelOrder: (product: TypeProduct) => void
+}
 
 export const ReceptionCard: FC<Props> = memo((props) => {
-  const { product, addOrder, cancelOrder } = props;
+  const { product, addOrder, cancelOrder } = props
 
   return (
     <Box w="300px" h="250px" bg="white" borderRadius="10px" shadow="md" p={4}>
@@ -26,5 +26,5 @@ export const ReceptionCard: FC<Props> = memo((props) => {
         </Button>
       </Stack>
     </Box>
-  );
-});
+  )
+})

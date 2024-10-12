@@ -1,10 +1,10 @@
-import { HamburgerIcon } from "@chakra-ui/icons";
-import { IconButton } from "@chakra-ui/react";
-import { FC, memo } from "react";
+import { HamburgerIcon } from "@chakra-ui/icons"
+import { IconButton } from "@chakra-ui/react"
+import { FC, memo } from "react"
 
 type Props = {
-  onOpen: () => void;
-};
+  onOpen: () => void
+}
 
 export const MenuIconButton: FC<Props> = memo(({ onOpen }) => {
   return (
@@ -16,5 +16,5 @@ export const MenuIconButton: FC<Props> = memo(({ onOpen }) => {
       display={{ base: "block", md: "none" }}
       onClick={onOpen}
     />
-  );
-});
+  )
+})

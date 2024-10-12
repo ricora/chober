@@ -1,8 +1,8 @@
-import { Box, Flex, Text, Link } from "@chakra-ui/react";
-import { useLocation } from "@remix-run/react";
+import { Box, Flex, Text, Link } from "@chakra-ui/react"
+import { useLocation } from "@remix-run/react"
 
 export default function Sidebar() {
-  const location = useLocation();
+  const location = useLocation()
 
   return (
     <Flex height="100vh" width="230px" bg="gray.200" direction="column" p={4}>
@@ -50,5 +50,5 @@ export default function Sidebar() {
         厨房
       </Link>
     </Flex>
-  );
+  )
 }

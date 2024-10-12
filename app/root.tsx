@@ -5,20 +5,20 @@ import {
   Meta,
   Scripts,
   ScrollRestoration,
-} from "@remix-run/react";
-import appStylesHref from "./styles/app.css";
-import { LinksFunction } from "@remix-run/node";
-import Header from "./routes/header";
-import { ChakraProvider, Grid, GridItem } from "@chakra-ui/react";
-import theme from "./styles/theme";
-import Sidebar from "./routes/side";
+} from "@remix-run/react"
+import appStylesHref from "./styles/app.css"
+import { LinksFunction } from "@remix-run/node"
+import Header from "./routes/header"
+import { ChakraProvider, Grid, GridItem } from "@chakra-ui/react"
+import theme from "./styles/theme"
+import Sidebar from "./routes/side"
 
 // export const links: LinksFunction = () => [
 //   { rel: "stylesheet", href: appStylesHref },
 // ];
 
 export function meta() {
-  return [{ title: "Order" }, { description: "Order for Jazz Club" }];
+  return [{ title: "Order" }, { description: "Order for Jazz Club" }]
 }
 
 export default function App() {
@@ -36,7 +36,7 @@ export default function App() {
             <GridItem
               as="nav"
               bg="gray.200"
-              display={{ base: "none", lg: "block" }} 
+              display={{ base: "none", lg: "block" }}
               p={4}
             >
               <Sidebar />

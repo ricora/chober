@@ -1,20 +1,20 @@
-import { Box, Button, Input, Stack, Text } from "@chakra-ui/react";
-import { ActionFunction, ActionFunctionArgs } from "@remix-run/node";
-import { Form } from "@remix-run/react";
-import { FC, memo } from "react";
-import { deleteAllDetails } from "~/crud/crud_details";
-import { deleteAllOrders, updateOrderStatus } from "~/crud/crud_orders";
+import { Box, Button, Input, Stack, Text } from "@chakra-ui/react"
+import { ActionFunction, ActionFunctionArgs } from "@remix-run/node"
+import { Form } from "@remix-run/react"
+import { FC, memo } from "react"
+import { deleteAllDetails } from "~/crud/crud_details"
+import { deleteAllOrders, updateOrderStatus } from "~/crud/crud_orders"
 
 type Props = {
-  orderId: number;
-  productNames: string[];
-  status: string;
-  quantities: number[];
-  tableNumber: number;
-};
+  orderId: number
+  productNames: string[]
+  status: string
+  quantities: number[]
+  tableNumber: number
+}
 
 export const OrderCard: FC<Props> = memo((props) => {
-  const { orderId, productNames, status, quantities, tableNumber } = props;
+  const { orderId, productNames, status, quantities, tableNumber } = props
 
   return (
     <Box
@@ -66,5 +66,5 @@ export const OrderCard: FC<Props> = memo((props) => {
         )}
       </Stack>
     </Box>
-  );
-});
+  )
+})
