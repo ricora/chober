@@ -2,7 +2,6 @@ import {
   Box,
   Button,
   FormControl,
-  FormLabel,
   Heading,
   HStack,
   Input,
@@ -11,22 +10,15 @@ import {
   ModalCloseButton,
   ModalContent,
   ModalFooter,
-  ModalHeader,
   ModalOverlay,
   Stack,
   Text,
   useDisclosure,
-  VStack,
   Wrap,
   WrapItem,
 } from "@chakra-ui/react"
 import { ActionFunction, ActionFunctionArgs, json } from "@remix-run/node"
-import {
-  Form,
-  useActionData,
-  useFetcher,
-  useLoaderData,
-} from "@remix-run/react"
+import { Form, useActionData, useLoaderData } from "@remix-run/react"
 import { useEffect, useState } from "react"
 import { ReceptionCard } from "~/components/organisms/reception/ReceptionCard"
 import { createOrderDetail } from "~/crud/crud_details"
@@ -34,11 +26,11 @@ import { createOrder } from "~/crud/crud_orders"
 import { readProduct } from "~/crud/crud_products"
 import { useMessage } from "~/hooks/useMessage"
 
-type TypeOrder = {
-  table_number: number
-  order_datetime: string
-  status: "accept" | "cooking" | "complete"
-}
+// type TypeOrder = {
+//   table_number: number
+//   order_datetime: string
+//   status: "accept" | "cooking" | "complete"
+// }
 
 type TypeOrderDetail = {
   product_name: string
@@ -57,7 +49,7 @@ export default function Reception() {
   const { products: products } = useLoaderData<typeof loader>()
   const [order, setOrder] = useState<TypeOrderDetail[]>([])
   const [total, setTotal] = useState(0)
-  const [decision, setDecision] = useState(false)
+  // const [decision, setDecision] = useState(false)
   const actionData = useActionData<ActionData>()
   const { showMessage } = useMessage()
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -82,7 +74,7 @@ export default function Reception() {
   useEffect(() => {
     if (actionData?.success === true) {
       setTotal(0)
-      setDecision(false)
+      // setDecision(false)
       setOrder([])
       showMessage({ title: "注文しました", status: "success" })
       onClose()
@@ -90,7 +82,7 @@ export default function Reception() {
     } else if (actionData?.success === false) {
       showMessage({ title: "テーブル番号を記入してください", status: "error" })
     }
-  }, [actionData])
+  }, [actionData, onClose, showMessage])
 
   const addOrder = (product: {
     product_id: number
@@ -144,7 +136,7 @@ export default function Reception() {
       0,
     )
     setTotal(totalPrice)
-    setDecision(true)
+    // setDecision(true)
     onOpen()
   }
 
@@ -191,12 +183,7 @@ export default function Reception() {
         </Wrap>
       </div>
 
-      <Modal
-        isOpen={isOpen}
-        onClose={onClose}
-        autoFocus={false}
-        motionPreset="slideInBottom"
-      >
+      <Modal isOpen={isOpen} onClose={onClose} motionPreset="slideInBottom">
         <ModalOverlay />
         <ModalContent pb={2}>
           <ModalCloseButton />
@@ -210,7 +197,7 @@ export default function Reception() {
                   {order.map((item) => (
                     <Stack key={item.product_id} spacing={0}>
                       <Text>
-                        商品名：{item.product_name}　　商品ID：{item.product_id}
+                        商品名：{item.product_name} 商品ID：{item.product_id}
                       </Text>
                       <Text>数量：{item.quantity}</Text>
                     </Stack>

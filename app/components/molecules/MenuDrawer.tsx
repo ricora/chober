@@ -6,6 +6,7 @@ import {
   DrawerOverlay,
 } from "@chakra-ui/react"
 import { FC, memo } from "react"
+import PropTypes from "prop-types"
 
 type Props = {
   onClose: () => void
@@ -16,7 +17,7 @@ type Props = {
   onClickKitchen: () => void
 }
 
-export const MenueDrawer: FC<Props> = memo((props) => {
+export const MenuDrawer: FC<Props> = memo((props) => {
   const {
     onClose,
     isOpen,
@@ -49,3 +50,14 @@ export const MenueDrawer: FC<Props> = memo((props) => {
     </Drawer>
   )
 })
+
+MenuDrawer.displayName = "MenuDrawer"
+
+MenuDrawer.propTypes = {
+  onClose: PropTypes.func.isRequired,
+  isOpen: PropTypes.bool.isRequired,
+  onClickHome: PropTypes.func.isRequired,
+  onClickReception: PropTypes.func.isRequired,
+  onClickRegister: PropTypes.func.isRequired,
+  onClickKitchen: PropTypes.func.isRequired,
+}

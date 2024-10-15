@@ -1,15 +1,13 @@
 import { Box, Button, Input, Stack, Text } from "@chakra-ui/react"
-import { ActionFunction, ActionFunctionArgs } from "@remix-run/node"
 import { Form } from "@remix-run/react"
 import { FC, memo } from "react"
-import { deleteAllDetails } from "~/crud/crud_details"
-import { deleteAllOrders, updateOrderStatus } from "~/crud/crud_orders"
+import PropTypes from "prop-types"
 
 type Props = {
   orderId: number
-  productNames: string[]
+  productNames: (string | null | undefined)[]
   status: string
-  quantities: number[]
+  quantities: (number | null | undefined)[]
   tableNumber: number
 }
 
@@ -68,3 +66,13 @@ export const OrderCard: FC<Props> = memo((props) => {
     </Box>
   )
 })
+
+OrderCard.displayName = "OrderCard"
+
+OrderCard.propTypes = {
+  orderId: PropTypes.number.isRequired,
+  productNames: PropTypes.arrayOf(PropTypes.string).isRequired,
+  status: PropTypes.string.isRequired,
+  quantities: PropTypes.arrayOf(PropTypes.number).isRequired,
+  tableNumber: PropTypes.number.isRequired,
+}

@@ -2,7 +2,7 @@ import { Flex, Heading, useDisclosure } from "@chakra-ui/react"
 import { Link, useNavigate } from "@remix-run/react"
 import { useCallback } from "react"
 import { MenuIconButton } from "~/components/atoms/button/MenuIconButton"
-import { MenueDrawer } from "~/components/molecules/MenueDrawer"
+import { MenuDrawer } from "~/components/molecules/MenuDrawer"
 
 export default function Header() {
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -11,19 +11,19 @@ export default function Header() {
   const onClickHome = useCallback(() => {
     navigate("/")
     onClose()
-  }, [])
+  }, [navigate, onClose])
   const onClickReception = useCallback(() => {
     navigate("/reception")
     onClose()
-  }, [])
+  }, [navigate, onClose])
   const onClickRegister = useCallback(() => {
     navigate("/register")
     onClose()
-  }, [])
+  }, [navigate, onClose])
   const onClickKitchen = useCallback(() => {
     navigate("/kitchen")
     onClose()
-  }, [])
+  }, [navigate, onClose])
 
   return (
     <>
@@ -33,7 +33,7 @@ export default function Header() {
           <Link to="/">Order for Jazz Club</Link>
         </Heading>
       </Flex>
-      <MenueDrawer
+      <MenuDrawer
         onClose={onClose}
         isOpen={isOpen}
         onClickHome={onClickHome}

@@ -1,4 +1,4 @@
-import { Box, Flex, Text, Link } from "@chakra-ui/react"
+import { Flex, Text, Link } from "@chakra-ui/react"
 import { useLocation } from "@remix-run/react"
 
 export default function Sidebar() {

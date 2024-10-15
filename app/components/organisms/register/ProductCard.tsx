@@ -1,6 +1,7 @@
-import { Box, Button, Input, Stack, Text } from "@chakra-ui/react"
+import { Box, Button, Stack, Text } from "@chakra-ui/react"
 import { FC, memo } from "react"
 import { TypeProduct } from "~/type/typeproduct"
+import PropTypes from "prop-types"
 
 type Props = {
   product: TypeProduct
@@ -28,3 +29,16 @@ export const ProductCard: FC<Props> = memo((props) => {
     </Box>
   )
 })
+
+ProductCard.displayName = "ProductCard"
+
+ProductCard.propTypes = {
+  product: PropTypes.shape({
+    product_id: PropTypes.number.isRequired,
+    product_name: PropTypes.string.isRequired,
+    price: PropTypes.number.isRequired,
+    stock_quantity: PropTypes.number.isRequired,
+  }).isRequired,
+  clickDelete: PropTypes.func.isRequired,
+  clickChange: PropTypes.func.isRequired,
+}

@@ -18,15 +18,8 @@ import {
   Wrap,
   WrapItem,
 } from "@chakra-ui/react"
-import { UNABLE_TO_FIND_POSTINSTALL_TRIGGER_JSON_PARSE_ERROR } from "@prisma/client/scripts/postinstall.js"
 import { ActionFunction, ActionFunctionArgs } from "@remix-run/node"
-import {
-  Form,
-  json,
-  useActionData,
-  useFetcher,
-  useLoaderData,
-} from "@remix-run/react"
+import { Form, json, useActionData, useLoaderData } from "@remix-run/react"
 import { useState, useEffect } from "react"
 import { ProductCard } from "~/components/organisms/register/ProductCard"
 import {
@@ -121,7 +114,7 @@ export default function Register() {
     if (actionData?.error && actionData?.method === "update") {
       showMessage({ title: "変更失敗", status: "error" })
     }
-  }, [actionData])
+  }, [actionData, onDeleteClose, onChangeClose, showMessage])
 
   const nameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value)
@@ -281,7 +274,6 @@ export default function Register() {
       <Modal
         isOpen={isDeleteOpen}
         onClose={onDeleteClose}
-        autoFocus={false}
         motionPreset="slideInBottom"
       >
         <ModalOverlay />
@@ -310,7 +302,6 @@ export default function Register() {
       <Modal
         isOpen={isDeleteAllOpen}
         onClose={onDeleteAllClose}
-        autoFocus={false}
         motionPreset="slideInBottom"
       >
         <ModalOverlay />
@@ -334,7 +325,6 @@ export default function Register() {
       <Modal
         isOpen={isChangeOpen}
         onClose={onChangeClose}
-        autoFocus={false}
         motionPreset="slideInBottom"
       >
         <ModalOverlay />

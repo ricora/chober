@@ -10,8 +10,7 @@ import {
   WrapItem,
 } from "@chakra-ui/react"
 import { ActionFunction, ActionFunctionArgs } from "@remix-run/node"
-import { Form, json, useFetcher, useLoaderData } from "@remix-run/react"
-import { useEffect } from "react"
+import { Form, json, useLoaderData } from "@remix-run/react"
 import { OrderCard } from "~/components/organisms/kitchen/OrderCard"
 import { deleteAllDetails, readDetail } from "~/crud/crud_details"
 import {
@@ -91,12 +90,7 @@ export default function Kitchen() {
         })}
       </Wrap>
 
-      <Modal
-        isOpen={isOpen}
-        onClose={onClose}
-        autoFocus={false}
-        motionPreset="slideInBottom"
-      >
+      <Modal isOpen={isOpen} onClose={onClose} motionPreset="slideInBottom">
         <ModalOverlay />
         <ModalContent pb={2}>
           <ModalBody mx={4}>

@@ -6,8 +6,6 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react"
-import appStylesHref from "./styles/app.css"
-import { LinksFunction } from "@remix-run/node"
 import Header from "./routes/header"
 import { ChakraProvider, Grid, GridItem } from "@chakra-ui/react"
 import theme from "./styles/theme"
