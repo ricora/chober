@@ -2,62 +2,62 @@
 
 ## ディレクトリ構造
 
-### app
+### `app/`
 
 React アプリケーションのソースコード
 
-### app/components
+#### `app/components/`
 
 React Component
 
-### app/components/atoms/button
+##### `app/components/atoms/`
 
 ボタンなどの最小単位のコンポーネント
 
-### app/components/molecules
+##### `app/components/molecules/`
 
 ドロワーなどのatomsよりも大きなコンポーネント
 
-### app/components/organisms
+##### `app/components/organisms/`
 
 カードなどのatomsやmoleculesよりも大きなコンポーネント
 
-### app/components/organisms/kitchen
+###### `app/components/organisms/kitchen/`
 
 厨房画面で使用するコンポーネント
 
-### app/components/organisms/reception
+###### `app/components/organisms/reception/`
 
 受付画面で使用するコンポーネント
 
-### app/components/organisms/register
+###### `app/components/organisms/register/`
 
 登録画面で使用するコンポーネント
 
-### app/crud
+#### `app/crud/`
 
 データベースを操作に関連する関数など
 
-### app/hooks
+#### `app/hooks/`
 
 React Hooksのカスタムフック
 
-### app/routes
+#### `app/routes/`
 
 ルーティングやサイドバー、ヘッダー
 
-### app/styles
+#### `app/styles/`
 
 アプリケーションのスタイル管理
 
-### app/type
+#### `app/type/`
 
 TypeScriptの型定義
 
-### prisma
+### `prisma/`
 
 prismaに関連する設定ファイルやスキーマ定義
 
-### public
+### `public/`
 
 静的ファイル（画像やアイコンなど）
