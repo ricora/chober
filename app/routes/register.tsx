@@ -26,6 +26,7 @@ import {
   createProduct,
   deleteAllProducts,
   deleteProduct,
+  existProduct,
   readProduct,
   updateProduct,
 } from "~/crud/crud_products"
@@ -71,22 +72,6 @@ export default function Register() {
   const [deleteProduct, setDeleteProduct] = useState<TypeProduct | null>(null)
   const [changeProduct, setChangeProduct] = useState<TypeProduct | null>(null)
 
-  // const fetcher = useFetcher();
-
-  // useEffect(() => {
-  //   const ws = new WebSocket("ws://localhost:8000");
-
-  //   ws.onmessage = (event) => {
-  //     const message = JSON.parse(event.data);
-  //     if (message.type === "UPDATE" && message.table === "Products") {
-  //       // サーバーから再度データを取得
-  //       fetcher.load("/register");
-  //     }
-  //   };
-
-  //   return () => ws.close();
-  // }, [fetcher]);
-
   useEffect(() => {
     if (actionData?.success && actionData?.method === "POST") {
       setName("")
@@ -95,9 +80,13 @@ export default function Register() {
       setLoading(false)
       showMessage({ title: "登録完了", status: "success" })
     }
-    if (actionData?.error && actionData?.method === "POST") {
+
+    if (actionData?.error === "isExist" && actionData?.method === "POST") {
+      showMessage({ title: "すでに登録済みです", status: "error" })
+    } else if (actionData?.error && actionData?.method === "POST") {
       showMessage({ title: "登録失敗", status: "error" })
     }
+
     if (actionData?.success && actionData?.method === "delete") {
       showMessage({ title: "削除完了", status: "success" })
       setDeleteProduct(null)
@@ -409,6 +398,18 @@ export const action: ActionFunction = async ({
     const product_name = formData.get("product_name")
     const price = Number(formData.get("price"))
     const stock_quantity = Number(formData.get("stock_quantity"))
+
+    if (typeof product_name === "string") {
+      const isExist = await existProduct(product_name)
+
+      if (isExist) {
+        return json({
+          success: false,
+          error: "isExist",
+          method: request.method,
+        })
+      }
+    }
 
     if (
       typeof product_name === "string" &&
