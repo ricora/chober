@@ -57,6 +57,17 @@ export async function updateProduct(
   })
 }
 
+//同じ商品名の商品が既に存在するか確認する
+export async function existProduct(name: string) {
+  return await prisma.products.findFirst({
+    where: {
+      product_name: {
+        equals: name,
+      },
+    },
+  })
+}
+
 //すべての商品を消す
 export async function deleteAllProducts() {
   await prisma.products.deleteMany()
