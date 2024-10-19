@@ -145,14 +145,6 @@ export default function Register() {
     }
   }
 
-  const handleStockChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (changeProduct) {
-      setChangeProduct({
-        ...changeProduct,
-      })
-    }
-  }
-
   return (
     <div>
       <Button
