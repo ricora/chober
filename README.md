@@ -1,40 +1,29 @@
-# Welcome to Remix!
+# Order
 
-- 📖 [Remix docs](https://remix.run/docs)
+## 目的
 
-## Development
+ジャズ研が学祭で使用するアプリケーションの作成
 
-Run the dev server:
+## セットアップの方法
 
-```shellscript
-npm run dev
-```
+1. リポジトリをクローン
+   ```bash
+   git clone https://github.com/ricora/order.git
 
-## Deployment
+2. dependenciesのインストール
+   ```bash
+   bun install
 
-First, build your app for production:
+## DBのセットアップ
 
-```sh
-npm run build
-```
+1. .envに以下を記述
+   ```bash
+   DATABASE_URL="file:./dev.db"
 
-Then run the app in production mode:
+2. Prisma Clientを生成
+   ```bash
+   bun prisma generate
 
-```sh
-npm start
-```
-
-Now you'll need to pick a host to deploy it to.
-
-### DIY
-
-If you're familiar with deploying Node applications, the built-in Remix app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-- `build/server`
-- `build/client`
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever css framework you prefer. See the [Vite docs on css](https://vitejs.dev/guide/features.html#css) for more information.
+## 開発サーバーの起動方法
+   ```bash
+   bun run dev
