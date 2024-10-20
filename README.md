@@ -1,23 +1,22 @@
 # Order
 
-## 目的
+学園祭のための注文管理アプリ
 
-ジャズ研が学祭で使用するアプリケーションの作成
+## 開発環境のセットアップ
 
-## セットアップの方法
+リポジトリをクローンする。
 
-1. リポジトリをクローンする。
+```sh
+git clone https://github.com/ricora/order.git
+```
 
-   ```sh
-   git clone https://github.com/ricora/order.git
-   ```
+### 依存関係のインストール
 
-2. dependenciesをインストールする。
-   ```sh
-   bun install
-   ```
+```sh
+bun install
+```
 
-## DBのセットアップ
+### DBのセットアップ
 
 1. `.env`に以下を記述する。
 
@@ -36,7 +35,7 @@
    bun prisma generate
    ```
 
-## 開発サーバーの起動方法
+### 開発サーバーの起動方法
 
 ```sh
 bun run dev
