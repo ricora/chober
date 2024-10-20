@@ -7,6 +7,7 @@
 ## セットアップの方法
 
 1. リポジトリをクローンする。
+
    ```sh
    git clone https://github.com/ricora/order.git
    ```
@@ -19,11 +20,13 @@
 ## DBのセットアップ
 
 1. .envに以下を記述する。
+
    ```sh
    DATABASE_URL="file:./dev.db"
    ```
 
 2. マイグレーションをデータベースに適用する。
+
    ```sh
    bun prisma migrate dev
    ```
@@ -34,6 +37,7 @@
    ```
 
 ## 開発サーバーの起動方法
-   ```sh
-   bun run dev
-   ```
+
+```sh
+bun run dev
+```
