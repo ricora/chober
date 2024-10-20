@@ -12,14 +12,14 @@
    git clone https://github.com/ricora/order.git
    ```
 
-2. dependenciesのインストールする。
+2. dependenciesをインストールする。
    ```sh
    bun install
    ```
 
 ## DBのセットアップ
 
-1. .envに以下を記述する。
+1. `.env`に以下を記述する。
 
    ```sh
    DATABASE_URL="file:./dev.db"
