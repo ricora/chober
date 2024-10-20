@@ -6,24 +6,29 @@
 
 ## セットアップの方法
 
-1. リポジトリをクローン
+1. リポジトリをクローンする。
    ```sh
    git clone https://github.com/ricora/order.git
    ```
 
-2. dependenciesのインストール
+2. dependenciesのインストールする。
    ```sh
    bun install
    ```
 
 ## DBのセットアップ
 
-1. .envに以下を記述
+1. .envに以下を記述する。
    ```sh
    DATABASE_URL="file:./dev.db"
    ```
 
-2. Prisma Clientを生成
+2. マイグレーションをデータベースに適用する。
+   ```sh
+   bun prisma migrate dev
+   ```
+
+3. Prisma Clientを生成する。
    ```sh
    bun prisma generate
    ```
