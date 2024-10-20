@@ -13,7 +13,7 @@ git clone https://github.com/ricora/order.git
 ### 依存関係のインストール
 
 ```sh
-bun install
+bun install --frozen-lockfile
 ```
 
 ### DBのセットアップ
