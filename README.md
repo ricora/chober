@@ -7,23 +7,28 @@
 ## セットアップの方法
 
 1. リポジトリをクローン
-   ```bash
+   ```sh
    git clone https://github.com/ricora/order.git
+   ```
 
 2. dependenciesのインストール
-   ```bash
+   ```sh
    bun install
+   ```
 
 ## DBのセットアップ
 
 1. .envに以下を記述
-   ```bash
+   ```sh
    DATABASE_URL="file:./dev.db"
+   ```
 
 2. Prisma Clientを生成
-   ```bash
+   ```sh
    bun prisma generate
+   ```
 
 ## 開発サーバーの起動方法
-   ```bash
+   ```sh
    bun run dev
+   ```
