@@ -18,7 +18,6 @@ export const ReceptionCard: FC<Props> = memo((props) => {
       <Stack textAlign={"center"}>
         <Text>{product.product_name}</Text>
         <Text>価格：{product.price}</Text>
-        <Text>在庫：{product.stock_quantity}</Text>
         <Button onClick={() => addOrder(product)} colorScheme="blue">
           +
         </Button>
@@ -37,7 +36,6 @@ ReceptionCard.propTypes = {
     product_id: PropTypes.number.isRequired,
     product_name: PropTypes.string.isRequired,
     price: PropTypes.number.isRequired,
-    stock_quantity: PropTypes.number.isRequired,
   }).isRequired,
   addOrder: PropTypes.func.isRequired,
   cancelOrder: PropTypes.func.isRequired,
