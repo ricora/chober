@@ -1,4 +1,4 @@
-import { Flex, Heading, useDisclosure } from "@chakra-ui/react"
+import { Flex, Heading, Text, useDisclosure } from "@chakra-ui/react"
 import { Link, useNavigate } from "@remix-run/react"
 import { useCallback } from "react"
 import { MenuIconButton } from "~/components/atoms/button/MenuIconButton"
@@ -30,7 +30,9 @@ export default function Header() {
       <Flex bg="teal.500" padding={{ base: 3, lg: 5 }}>
         <MenuIconButton onOpen={onOpen} />
         <Heading _hover={{ cursor: "pointer" }}>
-          <Link to="/">Order for Jazz Club</Link>
+          <Link to="/">
+            <Text fontFamily="'Times New Roman', serif">Order</Text>
+          </Link>
         </Heading>
       </Flex>
       <MenuDrawer
