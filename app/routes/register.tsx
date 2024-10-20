@@ -26,10 +26,12 @@ import {
   createProduct,
   deleteAllProducts,
   deleteProduct,
+  existProduct,
   readProduct,
   updateProduct,
 } from "~/crud/crud_products"
 import { useMessage } from "~/hooks/useMessage"
+import { TypeProduct } from "~/type/typeproduct"
 
 type ActionData = {
   success: boolean
@@ -37,17 +39,9 @@ type ActionData = {
   method?: string
 }
 
-type TypeProduct = {
-  product_id: number
-  product_name: string
-  price: number
-  stock_quantity: number
-}
-
 export default function Register() {
   const [name, setName] = useState("")
   const [price, setPrice] = useState("")
-  const [stock, setStock] = useState("")
   const [isLoading, setLoading] = useState(false)
   const actionData = useActionData<ActionData>()
   const { showMessage } = useMessage()
@@ -71,33 +65,20 @@ export default function Register() {
   const [deleteProduct, setDeleteProduct] = useState<TypeProduct | null>(null)
   const [changeProduct, setChangeProduct] = useState<TypeProduct | null>(null)
 
-  // const fetcher = useFetcher();
-
-  // useEffect(() => {
-  //   const ws = new WebSocket("ws://localhost:8000");
-
-  //   ws.onmessage = (event) => {
-  //     const message = JSON.parse(event.data);
-  //     if (message.type === "UPDATE" && message.table === "Products") {
-  //       // サーバーから再度データを取得
-  //       fetcher.load("/register");
-  //     }
-  //   };
-
-  //   return () => ws.close();
-  // }, [fetcher]);
-
   useEffect(() => {
     if (actionData?.success && actionData?.method === "POST") {
       setName("")
       setPrice("")
-      setStock("")
       setLoading(false)
       showMessage({ title: "登録完了", status: "success" })
     }
-    if (actionData?.error && actionData?.method === "POST") {
+
+    if (actionData?.error === "isExist" && actionData?.method === "POST") {
+      showMessage({ title: "すでに登録済みです", status: "error" })
+    } else if (actionData?.error && actionData?.method === "POST") {
       showMessage({ title: "登録失敗", status: "error" })
     }
+
     if (actionData?.success && actionData?.method === "delete") {
       showMessage({ title: "削除完了", status: "success" })
       setDeleteProduct(null)
@@ -122,10 +103,6 @@ export default function Register() {
 
   const priceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPrice(e.target.value)
-  }
-
-  const stockChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setStock(e.target.value)
   }
 
   const productOpen = () => {
@@ -168,15 +145,6 @@ export default function Register() {
     }
   }
 
-  const handleStockChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (changeProduct) {
-      setChangeProduct({
-        ...changeProduct,
-        stock_quantity: Number(e.target.value),
-      })
-    }
-  }
-
   return (
     <div>
       <Button
@@ -193,7 +161,7 @@ export default function Register() {
         <Box
           bg="white"
           w="400px"
-          h="400px"
+          h="300px"
           borderRadius="10px"
           shadow="md"
           fontSize="xl"
@@ -223,23 +191,12 @@ export default function Register() {
                 required
               />
             </FormControl>
-            <FormControl>
-              <FormLabel>在庫</FormLabel>
-              <Input
-                type="number"
-                name="stock_quantity"
-                value={stock}
-                onChange={stockChange}
-                bg="gray.200"
-                required
-              />
-            </FormControl>
             <Button
               type="submit"
               colorScheme="blue"
               isLoading={isLoading}
               // position="absolute"
-              bottom="-65"
+              bottom="-45"
               left="300"
             >
               登録
@@ -349,14 +306,6 @@ export default function Register() {
                   onChange={handlePriceChange}
                 />
               </FormControl>
-              <FormControl>
-                <FormLabel>在庫</FormLabel>
-                <Input
-                  type="number"
-                  value={changeProduct?.stock_quantity}
-                  onChange={handleStockChange}
-                />
-              </FormControl>
             </Stack>
           </ModalBody>
           <ModalFooter gap={4}>
@@ -373,11 +322,6 @@ export default function Register() {
                 name="product_name"
               />
               <Input type="hidden" value={changeProduct?.price} name="price" />
-              <Input
-                type="hidden"
-                value={changeProduct?.stock_quantity}
-                name="product_stock"
-              />
               <Button type="submit" colorScheme="green">
                 更新
               </Button>
@@ -408,17 +352,23 @@ export const action: ActionFunction = async ({
   ) {
     const product_name = formData.get("product_name")
     const price = Number(formData.get("price"))
-    const stock_quantity = Number(formData.get("stock_quantity"))
 
-    if (
-      typeof product_name === "string" &&
-      !isNaN(price) &&
-      !isNaN(stock_quantity)
-    ) {
+    if (typeof product_name === "string") {
+      const isExist = await existProduct(product_name)
+
+      if (isExist) {
+        return json({
+          success: false,
+          error: "isExist",
+          method: request.method,
+        })
+      }
+    }
+
+    if (typeof product_name === "string" && !isNaN(price)) {
       await createProduct({
         product_name,
         price,
-        stock_quantity,
       })
 
       return json({ success: true, method: request.method })
@@ -455,10 +405,9 @@ export const action: ActionFunction = async ({
     const product_id = Number(formData.get("product_id"))
     const product_name = formData.get("product_name")
     const price = Number(formData.get("price"))
-    const stock_quantity = Number(formData.get("product_stock"))
 
     if (typeof product_name === "string") {
-      await updateProduct(product_id, product_name, price, stock_quantity)
+      await updateProduct(product_id, product_name, price)
       return json({ success: true, method: method })
     } else {
       return json({ success: false, error: "no product_name", method: method })
