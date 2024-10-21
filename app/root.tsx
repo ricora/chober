@@ -1,4 +1,3 @@
-// アプリケーション全体の設定を管理
 import {
   Links,
   Outlet,
@@ -7,13 +6,9 @@ import {
   ScrollRestoration,
 } from "@remix-run/react"
 import Header from "./routes/header"
-import { ChakraProvider, Grid, GridItem } from "@chakra-ui/react"
+import { ChakraProvider, Box } from "@chakra-ui/react"
 import theme from "./styles/theme"
 import Sidebar from "./routes/side"
-
-// export const links: LinksFunction = () => [
-//   { rel: "stylesheet", href: appStylesHref },
-// ];
 
 export function meta() {
   return [{ title: "Order" }, { description: "Order for Jazz Club" }]
@@ -30,19 +25,29 @@ export default function App() {
       <body>
         <ChakraProvider theme={theme}>
           <Header />
-          <Grid templateColumns={{ base: "1fr", lg: "250px 1fr" }} minH="100vh">
-            <GridItem
+          <Box display="flex" minH="100vh" marginTop="80px">
+            <Box
               as="nav"
               bg="gray.200"
-              display={{ base: "none", lg: "block" }}
               p={4}
+              width="250px"
+              position="fixed"
+              top="80px"
+              left="0"
+              height="calc(100vh - 80px)"
             >
               <Sidebar />
-            </GridItem>
-            <GridItem as="main" p={4}>
+            </Box>
+            <Box
+              as="main"
+              flex="1"
+              ml="250px"
+              p={4}
+              height="calc(100vh - 80px)"
+            >
               <Outlet />
-            </GridItem>
-          </Grid>
+            </Box>
+          </Box>
         </ChakraProvider>
         <ScrollRestoration />
         <Scripts />
