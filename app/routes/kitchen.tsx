@@ -10,8 +10,7 @@ import {
   WrapItem,
 } from "@chakra-ui/react"
 import { ActionFunction, ActionFunctionArgs } from "@remix-run/node"
-import { Form, json, useFetcher, useLoaderData } from "@remix-run/react"
-import { useEffect, useState } from "react"
+import { Form, json, useLoaderData } from "@remix-run/react"
 import { OrderCard } from "~/components/organisms/kitchen/OrderCard"
 import { deleteAllDetails, readDetail } from "~/crud/crud_details"
 import {
@@ -20,60 +19,25 @@ import {
   updateOrderStatus,
 } from "~/crud/crud_orders"
 import { readProduct } from "~/crud/crud_products"
-
-type Order = {
-  order_id: number
-  table_number: number
-  status: string
-}
-
-type Detail = {
-  order_id: number
-  product_id: number
-  quantity: number
-}
-
-type Product = {
-  product_id: number
-  product_name: string
-}
-
-type FetcherData = {
-  orders: Order[]
-  details: Detail[]
-  products: Product[]
-}
+import { useKitchenData } from "~/hooks/useKitchenRefresh"
+import { TypeDetail } from "~/type/typedetail"
+import { TypeOrder } from "~/type/typeorder"
+import { TypeProduct } from "~/type/typeproduct"
 
 export default function Kitchen() {
   const initialData = useLoaderData<{
-    orders: Order[]
-    details: Detail[]
-    products: Product[]
+    orders: TypeOrder[]
+    details: TypeDetail[]
+    products: TypeProduct[]
   }>()
 
   const { isOpen, onOpen, onClose } = useDisclosure()
 
-  const [orders, setOrders] = useState<Order[]>(initialData.orders)
-  const [details, setDetails] = useState<Detail[]>(initialData.details)
-  const [products, setProducts] = useState<Product[]>(initialData.products)
-
-  const fetcher = useFetcher<FetcherData>()
-
-  useEffect(() => {
-    if (fetcher.data) {
-      setOrders(fetcher.data.orders)
-      setDetails(fetcher.data.details)
-      setProducts(fetcher.data.products)
-    }
-  }, [fetcher.data])
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetcher.load("/kitchen")
-    }, 5000)
-
-    return () => clearInterval(interval)
-  }, [fetcher])
+  const { orders, details, products } = useKitchenData(
+    initialData.orders,
+    initialData.details,
+    initialData.products,
+  )
 
   const filteredOrders = orders.filter((order) => order.status !== "finish")
 
