@@ -31,7 +31,9 @@ export default function Header() {
         <MenuIconButton onOpen={onOpen} />
         <Heading _hover={{ cursor: "pointer" }}>
           <Link to="/">
-            <Text fontSize="4xl" fontFamily='"Times New Roman", serif'>Order</Text>
+            <Text fontSize="4xl" fontFamily='"Times New Roman", serif'>
+              Order
+            </Text>
           </Link>
         </Heading>
       </Flex>
