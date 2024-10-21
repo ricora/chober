@@ -27,11 +27,11 @@ export default function Header() {
 
   return (
     <>
-      <Flex bg="teal.500" padding={{ base: 3, lg: 5 }}>
+      <Flex bg="blackAlpha.100" padding={{ base: 3, lg: 5 }}>
         <MenuIconButton onOpen={onOpen} />
         <Heading _hover={{ cursor: "pointer" }}>
           <Link to="/">
-            <Text fontFamily='"Times New Roman", serif'>Order</Text>
+            <Text fontSize="4xl" fontFamily='"Times New Roman", serif'>Order</Text>
           </Link>
         </Heading>
       </Flex>
