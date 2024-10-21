@@ -40,28 +40,21 @@ export default function Home() {
     0,
   )
 
-  const data_bar: TypeGraphComponent[] = []
-  const data_circle: TypeGraphComponent[] = []
+  const data_bar: TypeGraphComponent[] = products.map((product) => ({
+    total: details
+      .filter((detail) => detail.product_id === product.product_id)
+      .reduce((sum, filteredDetail) => sum + filteredDetail.quantity, 0),
+    name: product.product_name,
+  }))
 
-  products.map((product) =>
-    data_bar.push({
-      total: details
+  const data_circle: TypeGraphComponent[] = products.map((product) => ({
+    total:
+      details
         .filter((detail) => detail.product_id === product.product_id)
-        .reduce((sum, filteredDetail) => sum + filteredDetail.quantity, 0),
-      name: product.product_name,
-    }),
-  )
-
-  products.map((product) =>
-    data_circle.push({
-      total:
-        details
-          .filter((detail) => detail.product_id === product.product_id)
-          .reduce((sum, filteredDetail) => sum + filteredDetail.quantity, 0) *
-        product.price,
-      name: product.product_name,
-    }),
-  )
+        .reduce((sum, filteredDetail) => sum + filteredDetail.quantity, 0) *
+      product.price,
+    name: product.product_name,
+  }))
 
   const generateColors = (num: number) => {
     const box = []
