@@ -19,7 +19,7 @@ import {
   updateOrderStatus,
 } from "~/crud/crud_orders"
 import { readProduct } from "~/crud/crud_products"
-import { useKitchenData } from "~/hooks/useKitchenRefresh"
+import { useKitchenData } from "~/hooks/useKitchenData"
 import { TypeDetail } from "~/type/typedetail"
 import { TypeOrder } from "~/type/typeorder"
 import { TypeProduct } from "~/type/typeproduct"
