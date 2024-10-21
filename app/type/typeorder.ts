@@ -1,5 +1,5 @@
 export type TypeOrder = {
-    order_id: number
-    table_number: number
-    status: string
-  }
+  order_id: number
+  table_number: number
+  status: string
+}
