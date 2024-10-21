@@ -30,9 +30,7 @@ export default function Header() {
       <Flex bg="teal.500" padding={{ base: 3, lg: 5 }}>
         <MenuIconButton onOpen={onOpen} />
         <Heading _hover={{ cursor: "pointer" }}>
-          <Link to="/">
-            <Text fontFamily="'Times New Roman', serif">Order</Text>
-          </Link>
+          <Link to="/">Order for Jazz Club</Link>
         </Heading>
       </Flex>
       <MenuDrawer
