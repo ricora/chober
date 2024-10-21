@@ -1,4 +1,4 @@
-import { Flex, Heading, Text, useDisclosure } from "@chakra-ui/react"
+import { Flex, Heading, useDisclosure } from "@chakra-ui/react"
 import { Link, useNavigate } from "@remix-run/react"
 import { useCallback } from "react"
 import { MenuIconButton } from "~/components/atoms/button/MenuIconButton"
