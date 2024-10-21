@@ -27,16 +27,7 @@ export default function Header() {
 
   return (
     <>
-      <Flex
-        bg="teal.500"
-        padding={{ base: 3, lg: 5 }}
-        position="fixed"
-        top="0" // 画面の一番上に配置
-        left="0"
-        width="100%" // 幅を画面全体に広げる
-        zIndex="1000" // 他の要素より前面に表示
-        boxShadow="md" // 少し影をつける
-      >
+      <Flex bg="teal.500" padding={{ base: 3, lg: 5 }}>
         <MenuIconButton onOpen={onOpen} />
         <Heading _hover={{ cursor: "pointer" }}>
           <Link to="/">
