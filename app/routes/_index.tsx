@@ -60,7 +60,7 @@ export default function Home() {
     const box = []
     for (let i = 0; i < num; i++) {
       const hue = (i * 360) / num
-      box.push(hsl(${hue}, 70%, 50%))
+      box.push(`hsl(${hue}, 70%, 50%)`)
     }
     return box
   }
@@ -199,7 +199,7 @@ export default function Home() {
                     bg={colors[index % colors.length]}
                     borderRadius="50%"
                   />
-                  <Text>{${entry.name}: ${entry.total}円: ${Math.floor((entry.total / totalProfit) * 100)}%}</Text>
+                  <Text>{`${entry.name}: ${entry.total}円: ${Math.floor((entry.total / totalProfit) * 100)}%`}</Text>
                 </HStack>
               ))}
               <Button
