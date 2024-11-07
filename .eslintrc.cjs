@@ -18,6 +18,7 @@ module.exports = {
     browser: true,
     commonjs: true,
     es6: true,
+    'vitest/globals': true
   },
   ignorePatterns: ["!**/.server", "!**/.client"],
 
