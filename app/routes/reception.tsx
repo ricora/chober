@@ -14,12 +14,14 @@ import {
   Stack,
   Text,
   useDisclosure,
+  VStack,
   Wrap,
   WrapItem,
 } from "@chakra-ui/react"
 import { ActionFunction, ActionFunctionArgs, json } from "@remix-run/node"
 import { Form, useActionData, useLoaderData } from "@remix-run/react"
 import { useEffect, useState } from "react"
+import { Calculator } from "~/components/organisms/reception/Calculator"
 import { ReceptionCard } from "~/components/organisms/reception/ReceptionCard"
 import { createOrderDetail } from "~/crud/crud_details"
 import { createOrder } from "~/crud/crud_orders"
@@ -188,34 +190,37 @@ export default function Reception() {
         <ModalContent pb={2}>
           <ModalCloseButton />
           <ModalBody mx={4}>
-            <Stack spacing={4}>
-              <FormControl>
-                <Heading fontSize="1.75rem" mb={4}>
-                  注文内容
-                </Heading>
-                <Stack spacing={3}>
-                  {order.map((item) => (
-                    <Stack key={item.product_id} spacing={0}>
-                      <Text>
-                        商品名：{item.product_name} 商品ID：{item.product_id}
-                      </Text>
-                      <Text>数量：{item.quantity}</Text>
-                    </Stack>
-                  ))}
-                </Stack>
-                <Text>--------------------------------------------</Text>
-                <Text>合計：{total}円</Text>
-                <Text>
-                  テーブル番号：
-                  <Input
-                    type="number"
-                    onChange={tableNumberChange}
-                    value={tableNumber}
-                    bg="gray.300"
-                  />
-                </Text>
-              </FormControl>
-            </Stack>
+            <VStack>
+              <Stack spacing={4}>
+                <FormControl>
+                  <Heading fontSize="1.75rem" mb={4}>
+                    注文内容
+                  </Heading>
+                  <Stack spacing={3}>
+                    {order.map((item) => (
+                      <Stack key={item.product_id} spacing={0}>
+                        <Text>
+                          商品名：{item.product_name} 商品ID：{item.product_id}
+                        </Text>
+                        <Text>数量：{item.quantity}</Text>
+                      </Stack>
+                    ))}
+                  </Stack>
+                  <Text>--------------------------------------------</Text>
+                  <Text>合計：{total}円</Text>
+                  <Text>
+                    テーブル番号：
+                    <Input
+                      type="number"
+                      onChange={tableNumberChange}
+                      value={tableNumber}
+                      bg="gray.300"
+                    />
+                  </Text>
+                </FormControl>
+              </Stack>
+              <Calculator total={total.toString()} />
+            </VStack>
           </ModalBody>
           <ModalFooter gap={4}>
             <Form method="post">
