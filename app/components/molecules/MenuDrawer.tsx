@@ -15,6 +15,7 @@ type Props = {
   onClickReception: () => void
   onClickRegister: () => void
   onClickKitchen: () => void
+  onClickOrderTable: () => void
 }
 
 export const MenuDrawer: FC<Props> = memo((props) => {
@@ -25,6 +26,7 @@ export const MenuDrawer: FC<Props> = memo((props) => {
     onClickReception,
     onClickRegister,
     onClickKitchen,
+    onClickOrderTable,
   } = props
 
   return (
@@ -44,6 +46,9 @@ export const MenuDrawer: FC<Props> = memo((props) => {
             <Button w="100%" onClick={onClickKitchen}>
               厨房
             </Button>
+            <Button w="100%" onClick={onClickOrderTable}>
+              注文履歴
+            </Button>
           </DrawerBody>
         </DrawerContent>
       </DrawerOverlay>
@@ -60,4 +65,5 @@ MenuDrawer.propTypes = {
   onClickReception: PropTypes.func.isRequired,
   onClickRegister: PropTypes.func.isRequired,
   onClickKitchen: PropTypes.func.isRequired,
+  onClickOrderTable: PropTypes.func.isRequired,
 }
