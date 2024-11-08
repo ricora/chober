@@ -67,9 +67,22 @@ export default function Kitchen() {
           )
           const quantities = filteredDetails.map((detail) => detail.quantity)
 
+          const createTime = new Date(order.createTime).toLocaleString(
+            "ja-JP",
+            {
+              timeZone: "Asia/Tokyo",
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            },
+          )
+
           return (
             <WrapItem key={order.order_id} mx="auto">
               <OrderCard
+                orderTime={createTime}
                 orderId={order.order_id}
                 productNames={productNames}
                 quantities={quantities}

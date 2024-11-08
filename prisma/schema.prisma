@@ -18,6 +18,7 @@ model Orders {
   table_number    Int
   status          String
   orderDetails    Order_details[]
+  createTime      DateTime  @default(now())
 }
 
 model Order_details{

@@ -4,6 +4,7 @@ import { FC, memo } from "react"
 import PropTypes from "prop-types"
 
 type Props = {
+  orderTime: string
   orderId: number
   productNames: (string | null | undefined)[]
   status: string
@@ -12,7 +13,8 @@ type Props = {
 }
 
 export const OrderCard: FC<Props> = memo((props) => {
-  const { orderId, productNames, status, quantities, tableNumber } = props
+  const { orderTime, orderId, productNames, status, quantities, tableNumber } =
+    props
 
   return (
     <Box
@@ -24,7 +26,7 @@ export const OrderCard: FC<Props> = memo((props) => {
       p={4}
       overflowY="auto"
     >
-      <h1>{orderId}</h1>
+      <Text>{orderTime}</Text>
       <Stack textAlign={"center"}>
         {productNames.map((name, index) => (
           <Text key={index}>
@@ -70,6 +72,7 @@ export const OrderCard: FC<Props> = memo((props) => {
 OrderCard.displayName = "OrderCard"
 
 OrderCard.propTypes = {
+  orderTime: PropTypes.string.isRequired,
   orderId: PropTypes.number.isRequired,
   productNames: PropTypes.arrayOf(PropTypes.string).isRequired,
   status: PropTypes.string.isRequired,
