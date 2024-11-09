@@ -75,10 +75,10 @@ export default function Reception() {
     if (actionData?.success === true) {
       setTotal(0)
       // setDecision(false)
-      setOrder([])
       showMessage({ title: "注文しました", status: "success" })
       onClose()
       setTableNumber("")
+      setTimeout(() => setOrder([]), 0)
     } else if (actionData?.success === false) {
       showMessage({ title: "テーブル番号を記入してください", status: "error" })
     }
@@ -172,16 +172,21 @@ export default function Reception() {
       </Box>
       <div>
         <Wrap p={{ base: 4, md: 10 }}>
-          {products.map((product) => (
-            <WrapItem key={product.product_id} mx="auto">
-              <ReceptionCard
-                quantity={}
-                product={product}
-                addOrder={addOrder}
-                cancelOrder={cancelOrder}
-              />
-            </WrapItem>
-          ))}
+          {products.map((product) => {
+            const selectedOrder = order.find(
+              (order) => order.product_id === product.product_id,
+            )
+            return (
+              <WrapItem key={product.product_id} mx="auto">
+                <ReceptionCard
+                  quantity={selectedOrder?.quantity}
+                  product={product}
+                  addOrder={addOrder}
+                  cancelOrder={cancelOrder}
+                />
+              </WrapItem>
+            )
+          })}
         </Wrap>
       </div>
 
@@ -266,13 +271,26 @@ export const action: ActionFunction = async ({
       status: "accept",
     })
 
-    for (let i = 0; i < product_ids.length; i++) {
-      await createOrderDetail({
-        order_id: order.order_id,
-        product_id: product_ids[i],
-        quantity: quantities[i],
-      })
-    }
+    const products = await readProduct()
+
+    await Promise.all(
+      product_ids.map(async (product_id, index) => {
+        const quantity = quantities[index]
+        const product = products.find((p) => p.product_id === product_id)
+
+        await createOrderDetail({
+          order_id: order.order_id,
+          product_id: product_id,
+          quantity: quantity,
+        })
+
+        await updateStock({
+          product_id: product_id,
+          stock: product?.stock,
+          num: quantity,
+        })
+      }),
+    )
 
     return { success: true }
   }

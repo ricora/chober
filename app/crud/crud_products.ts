@@ -43,12 +43,16 @@ export async function updateProduct(
 }
 
 //在庫の変更
-export async function updateStock(product_id: number, stock: number) {
+export async function updateStock(data: {
+  product_id: number
+  stock: number | undefined
+  num: number
+}) {
   return await prisma.products.update({
     where: {
-      product_id: product_id,
+      product_id: data.product_id,
     },
-    data: { stock: stock - 1 },
+    data: { stock: data.stock ? data.stock - data.num : 0 },
   })
 }
 

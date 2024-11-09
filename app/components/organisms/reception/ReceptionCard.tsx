@@ -4,21 +4,25 @@ import { TypeProduct } from "~/type/typeproduct"
 import PropTypes from "prop-types"
 
 type Props = {
-  quantity: number
+  quantity?: number
   product: TypeProduct
   addOrder: (product: TypeProduct) => void
   cancelOrder: (product: TypeProduct) => void
 }
 
 export const ReceptionCard: FC<Props> = memo((props) => {
-  const { quantity, product, addOrder, cancelOrder } = props
+  const { quantity = 0, product, addOrder, cancelOrder } = props
 
   return (
     <Box
       w="300px"
       h="250px"
       bg={
-        product.stock === 0 ? "red" : product.stock <= 10 ? "red.100" : "white"
+        product.stock - quantity === 0
+          ? "red"
+          : product.stock - quantity <= 10
+            ? "red.100"
+            : "white"
       }
       borderRadius="10px"
       shadow="md"
@@ -28,9 +32,11 @@ export const ReceptionCard: FC<Props> = memo((props) => {
       <Stack textAlign={"center"}>
         <Text>{product.product_name}</Text>
         <Text>価格：{product.price}</Text>
-        <Text>在庫：{product.stock}</Text>
+        <Text>在庫：{product.stock - quantity}</Text>
         <Button
-          isDisabled={product.stock - quantity <= 0}
+          isDisabled={
+            quantity ? product.stock - quantity <= 0 : product.stock <= 0
+          }
           onClick={() => addOrder(product)}
           colorScheme="blue"
         >

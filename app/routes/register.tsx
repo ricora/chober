@@ -69,6 +69,7 @@ export default function Register() {
     if (actionData?.success && actionData?.method === "POST") {
       setName("")
       setPrice("")
+      setStock("")
       setLoading(false)
       showMessage({ title: "登録完了", status: "success" })
     }
@@ -174,7 +175,7 @@ export default function Register() {
         <Box
           bg="white"
           w="400px"
-          h="300px"
+          h="380px"
           borderRadius="10px"
           shadow="md"
           fontSize="xl"
@@ -208,7 +209,7 @@ export default function Register() {
               <FormLabel>在庫</FormLabel>
               <Input
                 type="number"
-                name="price"
+                name="stock"
                 value={stock}
                 onChange={stockChange}
                 bg="gray.200"
