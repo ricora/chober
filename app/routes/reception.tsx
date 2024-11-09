@@ -23,7 +23,7 @@ import { useEffect, useState } from "react"
 import { ReceptionCard } from "~/components/organisms/reception/ReceptionCard"
 import { createOrderDetail } from "~/crud/crud_details"
 import { createOrder } from "~/crud/crud_orders"
-import { readProduct } from "~/crud/crud_products"
+import { readProduct, updateStock } from "~/crud/crud_products"
 import { useMessage } from "~/hooks/useMessage"
 
 // type TypeOrder = {
@@ -88,6 +88,7 @@ export default function Reception() {
     product_id: number
     product_name: string
     price: number
+    stock: number
   }) => {
     setOrder((prevOrder) => {
       const existingProduct = prevOrder.find(
@@ -174,6 +175,7 @@ export default function Reception() {
           {products.map((product) => (
             <WrapItem key={product.product_id} mx="auto">
               <ReceptionCard
+                quantity={}
                 product={product}
                 addOrder={addOrder}
                 cancelOrder={cancelOrder}
