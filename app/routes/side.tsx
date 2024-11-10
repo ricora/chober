@@ -49,6 +49,16 @@ export default function Sidebar() {
       >
         厨房
       </Link>
+
+      <Link
+        href="/order_table"
+        mb={4}
+        p={2}
+        bg={location.pathname === "/order_table" ? "blue.200" : "transparent"}
+        borderRadius="md"
+      >
+        注文履歴
+      </Link>
     </Flex>
   )
 }

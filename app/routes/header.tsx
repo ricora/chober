@@ -24,6 +24,10 @@ export default function Header() {
     navigate("/kitchen")
     onClose()
   }, [navigate, onClose])
+  const onClickOrderTable = useCallback(() => {
+    navigate("/order_table")
+    onClose()
+  }, [navigate, onClose])
 
   return (
     <>
@@ -44,6 +48,7 @@ export default function Header() {
         onClickReception={onClickReception}
         onClickRegister={onClickRegister}
         onClickKitchen={onClickKitchen}
+        onClickOrderTable={onClickOrderTable}
       />
     </>
   )
