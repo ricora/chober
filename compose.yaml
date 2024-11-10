@@ -1,0 +1,20 @@
+name: order
+
+services:
+  deploy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - sqlite_data:/app/prisma/data
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=file:/app/prisma/data/deploy.db
+    user: "65532:65532"
+    restart: unless-stopped
+
+volumes:
+  sqlite_data:
+    name: order_sqlite_data
