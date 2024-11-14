@@ -1,6 +1,5 @@
 import { Box, Button, HStack, Text, VStack } from "@chakra-ui/react"
 import { FC, memo } from "react"
-import PropTypes from "prop-types"
 
 export const Calculator: FC = memo(() => {
   return (
@@ -44,7 +43,3 @@ export const Calculator: FC = memo(() => {
 })
 
 Calculator.displayName = "Calculator"
-
-Calculator.propTypes = {
-  total: PropTypes.string.isRequired,
-}
