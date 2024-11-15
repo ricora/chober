@@ -73,12 +73,12 @@ export default function Reception() {
 
   useEffect(() => {
     if (actionData?.success === true) {
+      setOrder([])
       setTotal(0)
       // setDecision(false)
       showMessage({ title: "注文しました", status: "success" })
       onClose()
       setTableNumber("")
-      setTimeout(() => setOrder([]), 0)
     } else if (actionData?.success === false) {
       showMessage({ title: "テーブル番号を記入してください", status: "error" })
     }
@@ -273,24 +273,22 @@ export const action: ActionFunction = async ({
 
     const products = await readProduct()
 
-    await Promise.all(
-      product_ids.map(async (product_id, index) => {
-        const quantity = quantities[index]
-        const product = products.find((p) => p.product_id === product_id)
+    product_ids.map(async (product_id, index) => {
+      const quantity = quantities[index]
+      const product = products.find((p) => p.product_id === product_id)
 
-        await createOrderDetail({
-          order_id: order.order_id,
-          product_id: product_id,
-          quantity: quantity,
-        })
+      await createOrderDetail({
+        order_id: order.order_id,
+        product_id: product_id,
+        quantity: quantity,
+      })
 
-        await updateStock({
-          product_id: product_id,
-          stock: product?.stock,
-          num: quantity,
-        })
-      }),
-    )
+      await updateStock({
+        product_id: product_id,
+        stock: product?.stock,
+        num: quantity,
+      })
+    })
 
     return { success: true }
   }

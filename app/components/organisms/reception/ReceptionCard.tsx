@@ -19,7 +19,7 @@ export const ReceptionCard: FC<Props> = memo((props) => {
       h="250px"
       bg={
         product.stock - quantity === 0
-          ? "red"
+          ? "red.200"
           : product.stock - quantity <= 10
             ? "red.100"
             : "white"
