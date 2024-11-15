@@ -68,7 +68,9 @@ export default function OrderTable() {
                   sum +
                   detail.quantity *
                     products
-                      .filter((product) => detail.product_id === product.product_id)
+                      .filter(
+                        (product) => detail.product_id === product.product_id,
+                      )
                       .reduce((sum, product) => sum + product.price, 0),
                 0,
               )
