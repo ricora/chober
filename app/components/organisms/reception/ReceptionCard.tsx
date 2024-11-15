@@ -53,6 +53,7 @@ export const ReceptionCard: FC<Props> = memo((props) => {
 ReceptionCard.displayName = "ReceptionCard"
 
 ReceptionCard.propTypes = {
+  quantity: PropTypes.number,
   product: PropTypes.shape({
     product_id: PropTypes.number.isRequired,
     product_name: PropTypes.string.isRequired,
