@@ -10,7 +10,6 @@ import {
   ModalCloseButton,
   ModalContent,
   ModalFooter,
-  ModalHeader,
   ModalOverlay,
   Stack,
   useDisclosure,
@@ -42,6 +41,7 @@ type ActionData = {
 export default function Register() {
   const [name, setName] = useState("")
   const [price, setPrice] = useState("")
+  const [stock, setStock] = useState("")
   const [isLoading, setLoading] = useState(false)
   const actionData = useActionData<ActionData>()
   const { showMessage } = useMessage()
@@ -69,6 +69,7 @@ export default function Register() {
     if (actionData?.success && actionData?.method === "POST") {
       setName("")
       setPrice("")
+      setStock("")
       setLoading(false)
       showMessage({ title: "登録完了", status: "success" })
     }
@@ -103,6 +104,10 @@ export default function Register() {
 
   const priceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPrice(e.target.value)
+  }
+
+  const stockChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setStock(e.target.value)
   }
 
   const productOpen = () => {
@@ -145,6 +150,15 @@ export default function Register() {
     }
   }
 
+  const handleStockChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (changeProduct) {
+      setChangeProduct({
+        ...changeProduct,
+        stock: Number(e.target.value),
+      })
+    }
+  }
+
   return (
     <div>
       <Button
@@ -161,7 +175,7 @@ export default function Register() {
         <Box
           bg="white"
           w="400px"
-          h="300px"
+          h="380px"
           borderRadius="10px"
           shadow="md"
           fontSize="xl"
@@ -187,6 +201,17 @@ export default function Register() {
                 name="price"
                 value={price}
                 onChange={priceChange}
+                bg="gray.200"
+                required
+              />
+            </FormControl>
+            <FormControl>
+              <FormLabel>在庫</FormLabel>
+              <Input
+                type="number"
+                name="stock"
+                value={stock}
+                onChange={stockChange}
                 bg="gray.200"
                 required
               />
@@ -286,7 +311,6 @@ export default function Register() {
       >
         <ModalOverlay />
         <ModalContent pb={2}>
-          <ModalHeader>ユーザー詳細</ModalHeader>
           <ModalCloseButton />
           <ModalBody mx={4}>
             <Stack spacing={4}>
@@ -306,6 +330,14 @@ export default function Register() {
                   onChange={handlePriceChange}
                 />
               </FormControl>
+              <FormControl>
+                <FormLabel>在庫</FormLabel>
+                <Input
+                  type="number"
+                  value={changeProduct?.stock}
+                  onChange={handleStockChange}
+                />
+              </FormControl>
             </Stack>
           </ModalBody>
           <ModalFooter gap={4}>
@@ -322,6 +354,7 @@ export default function Register() {
                 name="product_name"
               />
               <Input type="hidden" value={changeProduct?.price} name="price" />
+              <Input type="hidden" value={changeProduct?.stock} name="stock" />
               <Button type="submit" colorScheme="green">
                 更新
               </Button>
@@ -352,6 +385,7 @@ export const action: ActionFunction = async ({
   ) {
     const product_name = formData.get("product_name")
     const price = Number(formData.get("price"))
+    const stock = Number(formData.get("stock"))
 
     if (typeof product_name === "string") {
       const isExist = await existProduct(product_name)
@@ -369,6 +403,7 @@ export const action: ActionFunction = async ({
       await createProduct({
         product_name,
         price,
+        stock,
       })
 
       return json({ success: true, method: request.method })
@@ -405,9 +440,10 @@ export const action: ActionFunction = async ({
     const product_id = Number(formData.get("product_id"))
     const product_name = formData.get("product_name")
     const price = Number(formData.get("price"))
+    const stock = Number(formData.get("stock"))
 
     if (typeof product_name === "string") {
-      await updateProduct(product_id, product_name, price)
+      await updateProduct(product_id, product_name, price, stock)
       return json({ success: true, method: method })
     } else {
       return json({ success: false, error: "no product_name", method: method })

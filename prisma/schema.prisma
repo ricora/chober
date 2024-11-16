@@ -34,5 +34,6 @@ model Products{
   product_id      Int       @id @default(autoincrement())
   product_name    String    @unique
   price           Int
+  stock           Int
   orderDetails    Order_details[]
 }
