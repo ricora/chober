@@ -72,6 +72,7 @@ export default function Register() {
       setName("")
       setPrice("")
       setStock("")
+      setImage("")
       setLoading(false)
       showMessage({ title: "登録完了", status: "success" })
     }
@@ -161,6 +162,15 @@ export default function Register() {
       setChangeProduct({
         ...changeProduct,
         stock: Number(e.target.value),
+      })
+    }
+  }
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (changeProduct) {
+      setChangeProduct({
+        ...changeProduct,
+        image: e.target.value,
       })
     }
   }
@@ -361,6 +371,19 @@ export default function Register() {
                   onChange={handleStockChange}
                 />
               </FormControl>
+              <FormControl>
+                <FormLabel>商品画像</FormLabel>
+                <Input
+                  type="url"
+                  name="image"
+                  value={changeProduct?.image}
+                  onChange={handleImageChange}
+                  required
+                />
+                <FormHelperText>
+                  商品画像は画像URLで入力してください
+                </FormHelperText>
+              </FormControl>
             </Stack>
           </ModalBody>
           <ModalFooter gap={4}>
@@ -409,6 +432,7 @@ export const action: ActionFunction = async ({
     const product_name = formData.get("product_name")
     const price = Number(formData.get("price"))
     const stock = Number(formData.get("stock"))
+    const image = formData.get("image")
 
     if (typeof product_name === "string") {
       const isExist = await existProduct(product_name)
@@ -422,11 +446,18 @@ export const action: ActionFunction = async ({
       }
     }
 
-    if (typeof product_name === "string" && !isNaN(price)) {
+    const isValidInput =
+      typeof product_name === "string" &&
+      !isNaN(price) &&
+      !isNaN(stock) &&
+      typeof image === "string" &&
+      URL.canParse(image)
+    if (isValidInput) {
       await createProduct({
         product_name,
         price,
         stock,
+        image,
       })
 
       return json({ success: true, method: request.method })

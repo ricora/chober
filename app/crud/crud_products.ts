@@ -8,12 +8,14 @@ export async function createProduct(data: {
   product_name: string
   price: number
   stock: number
+  image: string
 }) {
   return await prisma.products.create({
     data: {
       product_name: data.product_name,
       price: data.price,
       stock: data.stock,
+      image: data.image,
     },
   })
 }
