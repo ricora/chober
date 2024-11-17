@@ -3,11 +3,16 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN groupadd -r appuser && useradd -r -g appuser -s /bin/false appuser
 WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl=8.5.0-2ubuntu10.4 \
-    unzip=6.0-28ubuntu4.1 \
-    openssl=3.0.13-0ubuntu3.4 \
-    ca-certificates=20240203 \
-    && rm -rf /var/lib/apt/lists/*
+    curl \
+    unzip \
+    openssl \
+    ca-certificates \
+    sqlite3 \
+    sqlite3-tools \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -L https://github.com/benbjohnson/litestream/releases/download/v0.3.13/litestream-v0.3.13-linux-amd64.tar.gz -o /tmp/litestream.tar.gz \
+    && tar -C /usr/local/bin -xzf /tmp/litestream.tar.gz \
+    && rm /tmp/litestream.tar.gz
 USER appuser
 WORKDIR /home/appuser
 ENV MISE_ROOT="/home/appuser/.local/share/mise"
@@ -44,28 +49,42 @@ FROM deps AS builder
 WORKDIR /app
 USER appuser
 COPY --chown=appuser:appuser . .
-ENV DATABASE_URL=file:/app/prisma/data/deploy.db
-RUN mkdir -p prisma/data && \
-    touch prisma/data/deploy.db && \
+ENV DATABASE_URL=file:/app/db/deploy.db
+RUN mkdir -p db && \
+    touch db/deploy.db && \
     bun prisma migrate deploy && \
     bun run build
 USER root
 RUN mkdir -p /tmp/prod/app && \
     cp -r build /tmp/prod/app/ && \
     cp -r prisma /tmp/prod/app/ && \
+    cp -r db /tmp/prod/app/ && \
     cp package.json /tmp/prod/app/ && \
     chown -R 65532:65532 /tmp/prod && \
     chmod -R 755 /tmp/prod/app && \
-    chmod 777 /tmp/prod/app/prisma/data && \
-    touch /tmp/prod/app/prisma/data/deploy.db && \
-    chmod 666 /tmp/prod/app/prisma/data/deploy.db
+    chmod 666 /tmp/prod/app/db/deploy.db
 
-FROM gcr.io/distroless/nodejs22-debian12:nonroot AS runner
+FROM node:20-slim AS runner
 WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    sqlite3 \
+    ca-certificates \
+    gettext-base \
+    && rm -rf /var/lib/apt/lists/*
+RUN mkdir -p /app/db && \
+    chown -R node:node /app
+COPY --from=base /usr/local/bin/litestream /usr/local/bin/
+COPY litestream.yml.template /etc/litestream.yml.template
+COPY run.sh /run.sh
+RUN chmod +x /run.sh && \
+    chown -R node:node /etc/litestream.yml.template
 COPY --from=prod-deps /tmp/prod-deps/node_modules ./node_modules
 COPY --from=builder /tmp/prod/app ./
 ENV NODE_ENV=production \
-    DATABASE_URL=file:/app/prisma/data/deploy.db
-USER 65532:65532
+    DATABASE_URL=file:/app/db/deploy.db
+RUN chown -R node:node /app && \
+    chmod 755 /app/db && \
+    chmod 666 /app/db/deploy.db
+USER node
 EXPOSE 3000
-CMD ["node_modules/@remix-run/serve/dist/cli.js", "build/server/index.js"]
+ENTRYPOINT ["/run.sh"]

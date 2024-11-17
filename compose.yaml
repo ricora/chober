@@ -8,10 +8,10 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - sqlite_data:/app/prisma/data
+      - sqlite_data:/app/db
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=file:/app/prisma/data/deploy.db
+      - DATABASE_URL=file:/app/db/deploy.db
     user: "65532:65532"
     restart: unless-stopped
 
