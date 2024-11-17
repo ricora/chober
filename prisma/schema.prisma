@@ -35,5 +35,6 @@ model Products {
   product_name String          @unique
   price        Int
   stock        Int
+  image        String
   orderDetails Order_details[]
 }
