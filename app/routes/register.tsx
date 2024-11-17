@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   FormControl,
+  FormHelperText,
   FormLabel,
   Heading,
   Input,
@@ -19,7 +20,7 @@ import {
 } from "@chakra-ui/react"
 import { ActionFunction, ActionFunctionArgs } from "@remix-run/node"
 import { Form, json, useActionData, useLoaderData } from "@remix-run/react"
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { ProductCard } from "~/components/organisms/register/ProductCard"
 import {
   createProduct,
@@ -42,6 +43,7 @@ export default function Register() {
   const [name, setName] = useState("")
   const [price, setPrice] = useState("")
   const [stock, setStock] = useState("")
+  const [image, setImage] = useState("")
   const [isLoading, setLoading] = useState(false)
   const actionData = useActionData<ActionData>()
   const { showMessage } = useMessage()
@@ -108,6 +110,10 @@ export default function Register() {
 
   const stockChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setStock(e.target.value)
+  }
+
+  const imageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setImage(e.target.value)
   }
 
   const productOpen = () => {
@@ -215,6 +221,20 @@ export default function Register() {
                 bg="gray.200"
                 required
               />
+            </FormControl>
+            <FormControl>
+              <FormLabel>商品画像</FormLabel>
+              <Input
+                type="url"
+                name="image"
+                value={image}
+                onChange={imageChange}
+                bg="gray.200"
+                required
+              />
+              <FormHelperText>
+                商品画像は画像URLで入力してください
+              </FormHelperText>
             </FormControl>
             <Button
               type="submit"
