@@ -11,6 +11,7 @@ import {
   ModalCloseButton,
   ModalContent,
   ModalFooter,
+  ModalHeader,
   ModalOverlay,
   Stack,
   useDisclosure,
@@ -345,67 +346,64 @@ export default function Register() {
         <ModalOverlay />
         <ModalContent pb={2}>
           <ModalCloseButton />
-          <ModalBody mx={4}>
-            <Stack spacing={4}>
-              <FormControl>
-                <FormLabel>商品名</FormLabel>
+          <ModalHeader />
+          <Form method="post">
+            <ModalBody mx={4}>
+              <Stack spacing={4}>
+                <Input type="hidden" name="_method" value="update" />
                 <Input
-                  type="text"
-                  value={changeProduct?.product_name}
-                  onChange={handleNameChange}
+                  type="hidden"
+                  value={changeProduct?.product_id}
+                  name="product_id"
                 />
-              </FormControl>
-              <FormControl>
-                <FormLabel>価格（税込み）</FormLabel>
-                <Input
-                  type="number"
-                  value={changeProduct?.price}
-                  onChange={handlePriceChange}
-                />
-              </FormControl>
-              <FormControl>
-                <FormLabel>在庫</FormLabel>
-                <Input
-                  type="number"
-                  value={changeProduct?.stock}
-                  onChange={handleStockChange}
-                />
-              </FormControl>
-              <FormControl>
-                <FormLabel>商品画像</FormLabel>
-                <Input
-                  type="url"
-                  name="image"
-                  value={changeProduct?.image}
-                  onChange={handleImageChange}
-                  required
-                />
-                <FormHelperText>
-                  商品画像は画像URLで入力してください
-                </FormHelperText>
-              </FormControl>
-            </Stack>
-          </ModalBody>
-          <ModalFooter gap={4}>
-            <Form method="post">
-              <Input type="hidden" name="_method" value="update" />
-              <Input
-                type="hidden"
-                value={changeProduct?.product_id}
-                name="product_id"
-              />
-              <Input
-                type="hidden"
-                value={changeProduct?.product_name}
-                name="product_name"
-              />
-              <Input type="hidden" value={changeProduct?.price} name="price" />
-              <Input type="hidden" value={changeProduct?.stock} name="stock" />
+                <FormControl>
+                  <FormLabel>商品名</FormLabel>
+                  <Input
+                    name="product_name"
+                    type="text"
+                    value={changeProduct?.product_name}
+                    onChange={handleNameChange}
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>価格（税込み）</FormLabel>
+                  <Input
+                    name="price"
+                    type="number"
+                    value={changeProduct?.price}
+                    onChange={handlePriceChange}
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>在庫</FormLabel>
+                  <Input
+                    name="stock"
+                    type="number"
+                    value={changeProduct?.stock}
+                    onChange={handleStockChange}
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>商品画像</FormLabel>
+                  <Input
+                    type="url"
+                    name="image"
+                    value={changeProduct?.image}
+                    onChange={handleImageChange}
+                    required
+                  />
+                  <FormHelperText>
+                    商品画像は画像URLで入力してください
+                  </FormHelperText>
+                </FormControl>
+              </Stack>
+            </ModalBody>
+            <ModalFooter gap={4}>
               <Button type="submit" colorScheme="green">
                 更新
               </Button>
-            </Form>
-          </ModalFooter>
+            </ModalFooter>
+          </Form>
         </ModalContent>
       </Modal>
     </div>
