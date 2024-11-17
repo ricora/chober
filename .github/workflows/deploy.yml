@@ -55,5 +55,4 @@ jobs:
             --port="3000" \
             --region ${{ env.REGION }} \
             --max-instances=1 \
-            --allow-unauthenticated \
             --set-env-vars=LITESTREAM_BUCKET=${{ secrets.LITESTREAM_BUCKET }}
