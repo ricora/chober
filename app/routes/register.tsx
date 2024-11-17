@@ -180,72 +180,75 @@ export default function Register() {
       <VStack>
         <Box
           bg="white"
-          w="400px"
-          h="380px"
+          w="full"
+          maxW="400px"
+          h="fit-content"
           borderRadius="10px"
           shadow="md"
           fontSize="xl"
           p={4}
         >
-          <Heading>商品登録フォーム</Heading>
+          <Heading mb="4" fontSize="2xl">
+            商品登録フォーム
+          </Heading>
           <Form method="post">
-            <FormControl>
-              <FormLabel>商品名</FormLabel>
-              <Input
-                type="text"
-                name="product_name"
-                value={name}
-                onChange={nameChange}
-                bg="gray.200"
-                required
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel>価格（税込み）</FormLabel>
-              <Input
-                type="number"
-                name="price"
-                value={price}
-                onChange={priceChange}
-                bg="gray.200"
-                required
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel>在庫</FormLabel>
-              <Input
-                type="number"
-                name="stock"
-                value={stock}
-                onChange={stockChange}
-                bg="gray.200"
-                required
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel>商品画像</FormLabel>
-              <Input
-                type="url"
-                name="image"
-                value={image}
-                onChange={imageChange}
-                bg="gray.200"
-                required
-              />
-              <FormHelperText>
-                商品画像は画像URLで入力してください
-              </FormHelperText>
-            </FormControl>
-            <Button
-              type="submit"
-              colorScheme="blue"
-              isLoading={isLoading}
-              // position="absolute"
-              bottom="-45"
-              left="300"
-            >
-              登録
-            </Button>
+            <VStack gap="4">
+              <FormControl>
+                <FormLabel>商品名</FormLabel>
+                <Input
+                  type="text"
+                  name="product_name"
+                  value={name}
+                  onChange={nameChange}
+                  bg="gray.200"
+                  required
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel>価格（税込み）</FormLabel>
+                <Input
+                  type="number"
+                  name="price"
+                  value={price}
+                  onChange={priceChange}
+                  bg="gray.200"
+                  required
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel>在庫</FormLabel>
+                <Input
+                  type="number"
+                  name="stock"
+                  value={stock}
+                  onChange={stockChange}
+                  bg="gray.200"
+                  required
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel>商品画像</FormLabel>
+                <Input
+                  type="url"
+                  name="image"
+                  value={image}
+                  onChange={imageChange}
+                  bg="gray.200"
+                  required
+                />
+                <FormHelperText>
+                  商品画像は画像URLで入力してください
+                </FormHelperText>
+              </FormControl>
+              <Button
+                alignSelf="end"
+                type="submit"
+                colorScheme="blue"
+                isLoading={isLoading}
+              >
+                登録
+              </Button>
+            </VStack>
           </Form>
         </Box>
         {isOpen ? (
