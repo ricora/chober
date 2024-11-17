@@ -1,22 +1,13 @@
 //Productsの操作
 import { PrismaClient } from "@prisma/client"
+import { TypeProduct } from "~/type/typeproduct"
 
 const prisma = new PrismaClient()
 
 //productの追加
-export async function createProduct(data: {
-  product_name: string
-  price: number
-  stock: number
-  image: string
-}) {
+export async function createProduct(data: Omit<TypeProduct, "product_id">) {
   return await prisma.products.create({
-    data: {
-      product_name: data.product_name,
-      price: data.price,
-      stock: data.stock,
-      image: data.image,
-    },
+    data,
   })
 }
 
@@ -28,19 +19,13 @@ export async function readProduct() {
 //商品の変更
 export async function updateProduct(
   product_id: number,
-  product_name: string,
-  price: number,
-  stock: number,
+  data: Omit<TypeProduct, "product_id">,
 ) {
   return await prisma.products.update({
     where: {
       product_id: product_id,
     },
-    data: {
-      product_name: product_name,
-      price: price,
-      stock: stock,
-    },
+    data,
   })
 }
 

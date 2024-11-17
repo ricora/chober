@@ -495,9 +495,22 @@ export const action: ActionFunction = async ({
     const product_name = formData.get("product_name")
     const price = Number(formData.get("price"))
     const stock = Number(formData.get("stock"))
+    const image = formData.get("image")
 
-    if (typeof product_name === "string") {
-      await updateProduct(product_id, product_name, price, stock)
+    const isValidInput =
+      !isNaN(product_id) &&
+      typeof product_name === "string" &&
+      !isNaN(price) &&
+      !isNaN(stock) &&
+      typeof image === "string" &&
+      URL.canParse(image)
+    if (isValidInput) {
+      await updateProduct(product_id, {
+        product_name,
+        price,
+        stock,
+        image,
+      })
       return json({ success: true, method: method })
     } else {
       return json({ success: false, error: "no product_name", method: method })
