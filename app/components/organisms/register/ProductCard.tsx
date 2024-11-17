@@ -13,11 +13,12 @@ export const ProductCard: FC<Props> = memo((props) => {
   const { product, clickDelete, clickChange } = props
 
   return (
-    <Box w="300px" h="250px" bg="white" borderRadius="10px" shadow="md" p={4}>
+    <Box w="300px" h="250px" bg={"white"} borderRadius="10px" shadow="md" p={4}>
       <h1>ID：{product.product_id}</h1>
       <Stack textAlign={"center"}>
         <Text>{product.product_name}</Text>
         <Text>価格：{product.price}</Text>
+        <Text>在庫：{product.stock}</Text>
         <Button onClick={() => clickDelete(product)} colorScheme="red">
           削除
         </Button>
@@ -36,6 +37,7 @@ ProductCard.propTypes = {
     product_id: PropTypes.number.isRequired,
     product_name: PropTypes.string.isRequired,
     price: PropTypes.number.isRequired,
+    stock: PropTypes.number.isRequired,
   }).isRequired,
   clickDelete: PropTypes.func.isRequired,
   clickChange: PropTypes.func.isRequired,

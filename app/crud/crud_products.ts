@@ -7,11 +7,13 @@ const prisma = new PrismaClient()
 export async function createProduct(data: {
   product_name: string
   price: number
+  stock: number
 }) {
   return await prisma.products.create({
     data: {
       product_name: data.product_name,
       price: data.price,
+      stock: data.stock,
     },
   })
 }
@@ -26,6 +28,7 @@ export async function updateProduct(
   product_id: number,
   product_name: string,
   price: number,
+  stock: number,
 ) {
   return await prisma.products.update({
     where: {
@@ -34,7 +37,22 @@ export async function updateProduct(
     data: {
       product_name: product_name,
       price: price,
+      stock: stock,
     },
+  })
+}
+
+//在庫の変更
+export async function updateStock(data: {
+  product_id: number
+  stock: number | undefined
+  num: number
+}) {
+  return await prisma.products.update({
+    where: {
+      product_id: data.product_id,
+    },
+    data: { stock: data.stock ? data.stock - data.num : 0 },
   })
 }
 

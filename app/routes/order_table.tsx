@@ -39,8 +39,10 @@ export default function OrderTable() {
           <Thead>
             <Tr>
               <Th>ID</Th>
+              <Th>注文日時</Th>
               <Th>テーブル番号</Th>
               <Th>注文内容</Th>
+              <Th>売上</Th>
               <Th>ステータス</Th>
             </Tr>
           </Thead>
@@ -61,10 +63,33 @@ export default function OrderTable() {
               const quantities = filteredDetails.map(
                 (detail) => detail.quantity,
               )
+              const totalPrice = filteredDetails.reduce(
+                (sum, detail) =>
+                  sum +
+                  detail.quantity *
+                    products
+                      .filter(
+                        (product) => detail.product_id === product.product_id,
+                      )
+                      .reduce((sum, product) => sum + product.price, 0),
+                0,
+              )
+              const createTime = new Date(order.createTime).toLocaleString(
+                "ja-JP",
+                {
+                  timeZone: "Asia/Tokyo",
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                },
+              )
 
               return (
                 <Tr key={order.order_id}>
                   <Td>{order.order_id}</Td>
+                  <Td>{createTime}</Td>
                   <Td>{order.table_number}</Td>
                   <Td>
                     {productNames.map((name, index) => (
@@ -73,6 +98,7 @@ export default function OrderTable() {
                       </div>
                     ))}
                   </Td>
+                  <Td>{totalPrice}円</Td>
                   <Td>{order.status}</Td>
                 </Tr>
               )

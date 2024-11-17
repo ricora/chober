@@ -1,7 +1,7 @@
 name: order
 
 services:
-  deploy:
+  production:
     build:
       context: .
       dockerfile: Dockerfile

@@ -14,16 +14,18 @@ import {
   Stack,
   Text,
   useDisclosure,
+  VStack,
   Wrap,
   WrapItem,
 } from "@chakra-ui/react"
 import { ActionFunction, ActionFunctionArgs, json } from "@remix-run/node"
 import { Form, useActionData, useLoaderData } from "@remix-run/react"
 import { useEffect, useState } from "react"
+import { Calculator } from "~/components/organisms/reception/Calculator"
 import { ReceptionCard } from "~/components/organisms/reception/ReceptionCard"
 import { createOrderDetail } from "~/crud/crud_details"
 import { createOrder } from "~/crud/crud_orders"
-import { readProduct } from "~/crud/crud_products"
+import { readProduct, updateStock } from "~/crud/crud_products"
 import { useMessage } from "~/hooks/useMessage"
 
 // type TypeOrder = {
@@ -73,9 +75,9 @@ export default function Reception() {
 
   useEffect(() => {
     if (actionData?.success === true) {
+      setOrder([])
       setTotal(0)
       // setDecision(false)
-      setOrder([])
       showMessage({ title: "注文しました", status: "success" })
       onClose()
       setTableNumber("")
@@ -88,6 +90,7 @@ export default function Reception() {
     product_id: number
     product_name: string
     price: number
+    stock: number
   }) => {
     setOrder((prevOrder) => {
       const existingProduct = prevOrder.find(
@@ -171,15 +174,21 @@ export default function Reception() {
       </Box>
       <div>
         <Wrap p={{ base: 4, md: 10 }}>
-          {products.map((product) => (
-            <WrapItem key={product.product_id} mx="auto">
-              <ReceptionCard
-                product={product}
-                addOrder={addOrder}
-                cancelOrder={cancelOrder}
-              />
-            </WrapItem>
-          ))}
+          {products.map((product) => {
+            const selectedOrder = order.find(
+              (order) => order.product_id === product.product_id,
+            )
+            return (
+              <WrapItem key={product.product_id} mx="auto">
+                <ReceptionCard
+                  quantity={selectedOrder?.quantity}
+                  product={product}
+                  addOrder={addOrder}
+                  cancelOrder={cancelOrder}
+                />
+              </WrapItem>
+            )
+          })}
         </Wrap>
       </div>
 
@@ -188,34 +197,37 @@ export default function Reception() {
         <ModalContent pb={2}>
           <ModalCloseButton />
           <ModalBody mx={4}>
-            <Stack spacing={4}>
-              <FormControl>
-                <Heading fontSize="1.75rem" mb={4}>
-                  注文内容
-                </Heading>
-                <Stack spacing={3}>
-                  {order.map((item) => (
-                    <Stack key={item.product_id} spacing={0}>
-                      <Text>
-                        商品名：{item.product_name} 商品ID：{item.product_id}
-                      </Text>
-                      <Text>数量：{item.quantity}</Text>
-                    </Stack>
-                  ))}
-                </Stack>
-                <Text>--------------------------------------------</Text>
-                <Text>合計：{total}円</Text>
-                <Text>
-                  テーブル番号：
-                  <Input
-                    type="number"
-                    onChange={tableNumberChange}
-                    value={tableNumber}
-                    bg="gray.300"
-                  />
-                </Text>
-              </FormControl>
-            </Stack>
+            <VStack>
+              <Stack spacing={4}>
+                <FormControl>
+                  <Heading fontSize="1.75rem" mb={4}>
+                    注文内容
+                  </Heading>
+                  <Stack spacing={3}>
+                    {order.map((item) => (
+                      <Stack key={item.product_id} spacing={0}>
+                        <Text>
+                          商品名：{item.product_name} 商品ID：{item.product_id}
+                        </Text>
+                        <Text>数量：{item.quantity}</Text>
+                      </Stack>
+                    ))}
+                  </Stack>
+                  <Text>--------------------------------------------</Text>
+                  <Text>合計：{total}円</Text>
+                  <Text>
+                    テーブル番号：
+                    <Input
+                      type="number"
+                      onChange={tableNumberChange}
+                      value={tableNumber}
+                      bg="gray.300"
+                    />
+                  </Text>
+                </FormControl>
+              </Stack>
+              <Calculator />
+            </VStack>
           </ModalBody>
           <ModalFooter gap={4}>
             <Form method="post">
@@ -264,13 +276,24 @@ export const action: ActionFunction = async ({
       status: "accept",
     })
 
-    for (let i = 0; i < product_ids.length; i++) {
+    const products = await readProduct()
+
+    product_ids.map(async (product_id, index) => {
+      const quantity = quantities[index]
+      const product = products.find((p) => p.product_id === product_id)
+
       await createOrderDetail({
         order_id: order.order_id,
-        product_id: product_ids[i],
-        quantity: quantities[i],
+        product_id: product_id,
+        quantity: quantity,
       })
-    }
+
+      await updateStock({
+        product_id: product_id,
+        stock: product?.stock,
+        num: quantity,
+      })
+    })
 
     return { success: true }
   }
