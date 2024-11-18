@@ -1,8 +1,12 @@
 import { Heading, VStack } from "@chakra-ui/react"
 import { ActionFunctionArgs } from "@remix-run/node"
 import { json, useActionData, useLoaderData } from "@remix-run/react"
-import { FC } from "react"
-import { ProductForm } from "~/components/organisms/register/ProductForm"
+import { parseWithValibot } from "conform-to-valibot"
+import { FC, useEffect } from "react"
+import {
+  ProductForm,
+  productSchema,
+} from "~/components/organisms/register/ProductForm"
 import { readProduct } from "~/crud/crud_products"
 
 export const loader = async () => {
@@ -22,7 +26,12 @@ const Register = () => {
 export default Register
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  return null
+  const formData = await request.formData()
+  const product = parseWithValibot(formData, { schema: productSchema })
+  if (product.status !== "success") {
+    return json(product.reply())
+  }
+  return json(product.reply({ resetForm: true }))
 }
 
 const CreateProductForm: FC = () => {
@@ -33,7 +42,7 @@ const CreateProductForm: FC = () => {
       <Heading fontSize="2xl" alignSelf="start">
         商品登録フォーム
       </Heading>
-      <ProductForm submitText="登録" />
+      <ProductForm submitText="登録" lastResult={actionData} />
     </VStack>
   )
 }

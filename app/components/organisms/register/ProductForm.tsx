@@ -1,11 +1,12 @@
 import { Form } from "~/components/atoms/Form"
-import type { FC } from "react"
+import { useEffect, type FC } from "react"
 import { TypeProduct } from "~/type/typeproduct"
 import { Button, FormControl, FormLabel, Input, VStack } from "@chakra-ui/react"
 import { FieldInfo } from "~/components/molecules/FieldInfo"
 import * as v from "valibot"
-import { parseWithValibot } from "conform-to-valibot"
-import { useForm } from "@conform-to/react"
+import { getValibotConstraint, parseWithValibot } from "conform-to-valibot"
+import { getInputProps, SubmissionResult, useForm } from "@conform-to/react"
+import { useActionData, useNavigation } from "@remix-run/react"
 
 export type ProductFormValues = Omit<TypeProduct, "product_id">
 
@@ -33,10 +34,17 @@ export const productSchema = v.object({
 
 export type ProductFormProps = {
   submitText: string
+  lastResult?: SubmissionResult<string[]> | null | undefined
 }
 
-export const ProductForm: FC<ProductFormProps> = ({ submitText }) => {
+export const ProductForm: FC<ProductFormProps> = ({
+  submitText,
+  lastResult,
+}) => {
+  const navigation = useNavigation()
   const [form, fields] = useForm({
+    constraint: getValibotConstraint(productSchema),
+    lastResult: navigation.state === "idle" ? lastResult : null,
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
     onValidate: ({ formData }) => {
@@ -56,51 +64,43 @@ export const ProductForm: FC<ProductFormProps> = ({ submitText }) => {
         <FormControl isInvalid={!fields.product_name.valid}>
           <FormLabel>商品名</FormLabel>
           <Input
-            type="text"
+            {...getInputProps(fields.product_name, { type: "text" })}
+            key={fields.product_name.key}
             placeholder="焼きそば"
-            name={fields.product_name.name}
-            required={fields.product_name.required}
-            defaultValue={fields.product_name.initialValue}
           />
           <FieldInfo errors={fields.product_name.errors} />
         </FormControl>
         <FormControl isInvalid={!fields.price.valid}>
           <FormLabel>価格</FormLabel>
           <Input
-            type="number"
+            {...getInputProps(fields.price, { type: "number" })}
+            key={fields.price.key}
             placeholder="500"
-            name={fields.price.name}
-            required={fields.price.required}
-            defaultValue={fields.price.initialValue}
           />
           <FieldInfo errors={fields.price.errors} />
         </FormControl>
         <FormControl isInvalid={!fields.stock.valid}>
           <FormLabel>在庫</FormLabel>
           <Input
-            type="number"
+            {...getInputProps(fields.stock, { type: "number" })}
+            key={fields.stock.key}
             placeholder="100"
-            name={fields.stock.name}
-            required={fields.stock.required}
-            defaultValue={fields.stock.initialValue}
           />
           <FieldInfo errors={fields.stock.errors} />
         </FormControl>
         <FormControl isInvalid={!fields.image.valid}>
           <FormLabel>商品画像</FormLabel>
           <Input
-            type="text"
+            {...getInputProps(fields.image, { type: "text" })}
+            key={fields.image.key}
             placeholder="https://example.com/image.jpg"
-            name={fields.image.name}
-            required={fields.image.required}
-            defaultValue={fields.image.initialValue}
           />
           <FieldInfo
             errors={fields.image.errors}
             helperText="商品画像は画像URLで入力してください"
           />
         </FormControl>
-        <Button type="submit" disabled={!form.valid} alignSelf="end">
+        <Button type="submit" alignSelf="end">
           {submitText}
         </Button>
       </VStack>
