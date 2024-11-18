@@ -57,12 +57,6 @@ const serverValidate = createServerValidate<ProductFormValues>({
 const CreateProductForm: FC = () => {
   const actionData = useActionData<typeof action>()
   const form = useForm<ProductFormValues>({
-    defaultValues: {
-      product_name: "",
-      price: 0,
-      stock: 0,
-      image: "",
-    },
     transform: useTransform(
       (baseForm) => mergeForm(baseForm, actionData ?? {}),
       [actionData],
