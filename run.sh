@@ -5,23 +5,23 @@ set -e
 envsubst < /etc/litestream.yml.template > /app/litestream.yml
 
 # Remove existing db if exists
-if [ -f /app/db/deploy.db ]; then
-    mv /app/db/deploy.db /app/db/deploy.db.bak
+if [ -f /app/db/prod.db ]; then
+    mv /app/db/prod.db /app/db/prod.db.bak
 fi
 
 # Restore database from GCS if exists
-litestream restore -if-replica-exists -config /app/litestream.yml /app/db/deploy.db
+litestream restore -if-replica-exists -config /app/litestream.yml /app/db/prod.db
 
-if [ -f /app/db/deploy.db ]; then
+if [ -f /app/db/prod.db ]; then
     echo "Successfully restored database from Cloud Storage"
-    rm -f /app/db/deploy.db.bak
+    rm -f /app/db/prod.db.bak
 else
     echo "No database backup found in Cloud Storage, using original"
-    mv /app/db/deploy.db.bak /app/db/deploy.db
+    mv /app/db/prod.db.bak /app/db/prod.db
 fi
 
 # Before starting the app, ensure WAL mode is disabled for Prisma compatibility
-sqlite3 /app/db/deploy.db "PRAGMA journal_mode=DELETE;"
+sqlite3 /app/db/prod.db "PRAGMA journal_mode=DELETE;"
 
 # Start Litestream replication with the app as the subprocess
 exec litestream replicate \

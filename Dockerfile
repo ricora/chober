@@ -49,9 +49,9 @@ FROM deps AS builder
 WORKDIR /app
 USER appuser
 COPY --chown=appuser:appuser . .
-ENV DATABASE_URL=file:/app/db/deploy.db
+ENV DATABASE_URL=file:/app/db/prod.db
 RUN mkdir -p db && \
-    touch db/deploy.db && \
+    touch db/prod.db && \
     bun prisma migrate deploy && \
     bun run build
 USER root
@@ -62,9 +62,9 @@ RUN mkdir -p /tmp/prod/app && \
     cp package.json /tmp/prod/app/ && \
     chown -R 65532:65532 /tmp/prod && \
     chmod -R 755 /tmp/prod/app && \
-    chmod 666 /tmp/prod/app/db/deploy.db
+    chmod 666 /tmp/prod/app/db/prod.db
 
-FROM node:20-slim AS runner
+FROM node:22-slim AS runner
 WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     sqlite3 \
@@ -81,10 +81,10 @@ RUN chmod +x /run.sh && \
 COPY --from=prod-deps /tmp/prod-deps/node_modules ./node_modules
 COPY --from=builder /tmp/prod/app ./
 ENV NODE_ENV=production \
-    DATABASE_URL=file:/app/db/deploy.db
+    DATABASE_URL=file:/app/db/prod.db
 RUN chown -R node:node /app && \
     chmod 755 /app/db && \
-    chmod 666 /app/db/deploy.db
+    chmod 666 /app/db/prod.db
 USER node
 EXPOSE 3000
 ENTRYPOINT ["/run.sh"]
