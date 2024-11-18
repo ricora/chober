@@ -40,3 +40,8 @@ bun install --frozen-lockfile
 ```sh
 bun run dev
 ```
+
+## 関連ドキュメント
+
+- [アーキテクチャの概要](ARCHITECTURE.md)
+- [データベースの永続化について](LITESTREAM.md)
