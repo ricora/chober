@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   FormControl,
+  FormHelperText,
   FormLabel,
   Heading,
   Input,
@@ -10,6 +11,7 @@ import {
   ModalCloseButton,
   ModalContent,
   ModalFooter,
+  ModalHeader,
   ModalOverlay,
   Stack,
   useDisclosure,
@@ -19,7 +21,7 @@ import {
 } from "@chakra-ui/react"
 import { ActionFunction, ActionFunctionArgs } from "@remix-run/node"
 import { Form, json, useActionData, useLoaderData } from "@remix-run/react"
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { ProductCard } from "~/components/organisms/register/ProductCard"
 import {
   createProduct,
@@ -42,6 +44,7 @@ export default function Register() {
   const [name, setName] = useState("")
   const [price, setPrice] = useState("")
   const [stock, setStock] = useState("")
+  const [image, setImage] = useState("")
   const [isLoading, setLoading] = useState(false)
   const actionData = useActionData<ActionData>()
   const { showMessage } = useMessage()
@@ -70,6 +73,7 @@ export default function Register() {
       setName("")
       setPrice("")
       setStock("")
+      setImage("")
       setLoading(false)
       showMessage({ title: "登録完了", status: "success" })
     }
@@ -108,6 +112,10 @@ export default function Register() {
 
   const stockChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setStock(e.target.value)
+  }
+
+  const imageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setImage(e.target.value)
   }
 
   const productOpen = () => {
@@ -159,6 +167,15 @@ export default function Register() {
     }
   }
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (changeProduct) {
+      setChangeProduct({
+        ...changeProduct,
+        image: e.target.value,
+      })
+    }
+  }
+
   return (
     <div>
       <Button
@@ -174,58 +191,75 @@ export default function Register() {
       <VStack>
         <Box
           bg="white"
-          w="400px"
-          h="380px"
+          w="full"
+          maxW="400px"
+          h="fit-content"
           borderRadius="10px"
           shadow="md"
           fontSize="xl"
           p={4}
         >
-          <Heading>商品登録フォーム</Heading>
+          <Heading mb="4" fontSize="2xl">
+            商品登録フォーム
+          </Heading>
           <Form method="post">
-            <FormControl>
-              <FormLabel>商品名</FormLabel>
-              <Input
-                type="text"
-                name="product_name"
-                value={name}
-                onChange={nameChange}
-                bg="gray.200"
-                required
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel>価格（税込み）</FormLabel>
-              <Input
-                type="number"
-                name="price"
-                value={price}
-                onChange={priceChange}
-                bg="gray.200"
-                required
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel>在庫</FormLabel>
-              <Input
-                type="number"
-                name="stock"
-                value={stock}
-                onChange={stockChange}
-                bg="gray.200"
-                required
-              />
-            </FormControl>
-            <Button
-              type="submit"
-              colorScheme="blue"
-              isLoading={isLoading}
-              // position="absolute"
-              bottom="-45"
-              left="300"
-            >
-              登録
-            </Button>
+            <VStack gap="4">
+              <FormControl>
+                <FormLabel>商品名</FormLabel>
+                <Input
+                  type="text"
+                  name="product_name"
+                  value={name}
+                  onChange={nameChange}
+                  bg="gray.200"
+                  required
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel>価格（税込み）</FormLabel>
+                <Input
+                  type="number"
+                  name="price"
+                  value={price}
+                  onChange={priceChange}
+                  bg="gray.200"
+                  required
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel>在庫</FormLabel>
+                <Input
+                  type="number"
+                  name="stock"
+                  value={stock}
+                  onChange={stockChange}
+                  bg="gray.200"
+                  required
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel>商品画像</FormLabel>
+                <Input
+                  type="url"
+                  name="image"
+                  value={image}
+                  onChange={imageChange}
+                  bg="gray.200"
+                  required
+                />
+                <FormHelperText>
+                  商品画像は画像URLで入力してください
+                </FormHelperText>
+              </FormControl>
+              <Button
+                alignSelf="end"
+                type="submit"
+                colorScheme="blue"
+                isLoading={isLoading}
+              >
+                登録
+              </Button>
+            </VStack>
           </Form>
         </Box>
         {isOpen ? (
@@ -312,54 +346,64 @@ export default function Register() {
         <ModalOverlay />
         <ModalContent pb={2}>
           <ModalCloseButton />
-          <ModalBody mx={4}>
-            <Stack spacing={4}>
-              <FormControl>
-                <FormLabel>商品名</FormLabel>
+          <ModalHeader />
+          <Form method="post">
+            <ModalBody mx={4}>
+              <Stack spacing={4}>
+                <Input type="hidden" name="_method" value="update" />
                 <Input
-                  type="text"
-                  value={changeProduct?.product_name}
-                  onChange={handleNameChange}
+                  type="hidden"
+                  value={changeProduct?.product_id}
+                  name="product_id"
                 />
-              </FormControl>
-              <FormControl>
-                <FormLabel>価格（税込み）</FormLabel>
-                <Input
-                  type="number"
-                  value={changeProduct?.price}
-                  onChange={handlePriceChange}
-                />
-              </FormControl>
-              <FormControl>
-                <FormLabel>在庫</FormLabel>
-                <Input
-                  type="number"
-                  value={changeProduct?.stock}
-                  onChange={handleStockChange}
-                />
-              </FormControl>
-            </Stack>
-          </ModalBody>
-          <ModalFooter gap={4}>
-            <Form method="post">
-              <Input type="hidden" name="_method" value="update" />
-              <Input
-                type="hidden"
-                value={changeProduct?.product_id}
-                name="product_id"
-              />
-              <Input
-                type="hidden"
-                value={changeProduct?.product_name}
-                name="product_name"
-              />
-              <Input type="hidden" value={changeProduct?.price} name="price" />
-              <Input type="hidden" value={changeProduct?.stock} name="stock" />
+                <FormControl>
+                  <FormLabel>商品名</FormLabel>
+                  <Input
+                    name="product_name"
+                    type="text"
+                    value={changeProduct?.product_name}
+                    onChange={handleNameChange}
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>価格（税込み）</FormLabel>
+                  <Input
+                    name="price"
+                    type="number"
+                    value={changeProduct?.price}
+                    onChange={handlePriceChange}
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>在庫</FormLabel>
+                  <Input
+                    name="stock"
+                    type="number"
+                    value={changeProduct?.stock}
+                    onChange={handleStockChange}
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>商品画像</FormLabel>
+                  <Input
+                    type="url"
+                    name="image"
+                    value={changeProduct?.image}
+                    onChange={handleImageChange}
+                    required
+                  />
+                  <FormHelperText>
+                    商品画像は画像URLで入力してください
+                  </FormHelperText>
+                </FormControl>
+              </Stack>
+            </ModalBody>
+            <ModalFooter gap={4}>
               <Button type="submit" colorScheme="green">
                 更新
               </Button>
-            </Form>
-          </ModalFooter>
+            </ModalFooter>
+          </Form>
         </ModalContent>
       </Modal>
     </div>
@@ -386,6 +430,7 @@ export const action: ActionFunction = async ({
     const product_name = formData.get("product_name")
     const price = Number(formData.get("price"))
     const stock = Number(formData.get("stock"))
+    const image = formData.get("image")
 
     if (typeof product_name === "string") {
       const isExist = await existProduct(product_name)
@@ -399,11 +444,18 @@ export const action: ActionFunction = async ({
       }
     }
 
-    if (typeof product_name === "string" && !isNaN(price)) {
+    const isValidInput =
+      typeof product_name === "string" &&
+      !isNaN(price) &&
+      !isNaN(stock) &&
+      typeof image === "string" &&
+      URL.canParse(image)
+    if (isValidInput) {
       await createProduct({
         product_name,
         price,
         stock,
+        image,
       })
 
       return json({ success: true, method: request.method })
@@ -441,9 +493,22 @@ export const action: ActionFunction = async ({
     const product_name = formData.get("product_name")
     const price = Number(formData.get("price"))
     const stock = Number(formData.get("stock"))
+    const image = formData.get("image")
 
-    if (typeof product_name === "string") {
-      await updateProduct(product_id, product_name, price, stock)
+    const isValidInput =
+      !isNaN(product_id) &&
+      typeof product_name === "string" &&
+      !isNaN(price) &&
+      !isNaN(stock) &&
+      typeof image === "string" &&
+      URL.canParse(image)
+    if (isValidInput) {
+      await updateProduct(product_id, {
+        product_name,
+        price,
+        stock,
+        image,
+      })
       return json({ success: true, method: method })
     } else {
       return json({ success: false, error: "no product_name", method: method })
