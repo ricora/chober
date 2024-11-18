@@ -1,4 +1,4 @@
-import { Form } from "@remix-run/react"
+import { Form } from "~/components/atoms/Form"
 import { FormApi, ReactFormApi } from "@tanstack/react-form"
 import type { FC } from "react"
 import { TypeProduct } from "~/type/typeproduct"
@@ -9,8 +9,8 @@ export type ProductFormValues = Omit<TypeProduct, "product_id">
 
 export type ProductFormProps = {
   form: FormApi<ProductFormValues> & ReactFormApi<ProductFormValues>
-  submittingText?: string
-  submitText?: string
+  submittingText: string
+  submitText: string
 }
 
 export const ProductForm: FC<ProductFormProps> = ({
@@ -19,7 +19,7 @@ export const ProductForm: FC<ProductFormProps> = ({
   submittingText,
 }) => {
   return (
-    <Form method="post" onSubmit={() => form.handleSubmit()}>
+    <Form method="post" onSubmit={() => form.handleSubmit()} w="full">
       <VStack gap={4}>
         <form.Field name="product_name">
           {(field) => (
@@ -100,6 +100,7 @@ export const ProductForm: FC<ProductFormProps> = ({
               isLoading={isSubmitting}
               loadingText={submittingText}
               disabled={!canSubmit}
+              alignSelf="end"
             >
               {submitText}
             </Button>
