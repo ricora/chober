@@ -1,8 +1,12 @@
 #!/bin/sh
 set -e
 
-# Generate litestream.yml in the app directory where node user has write permission
-envsubst < /etc/litestream.yml.template > /app/litestream.yml
+# Check if LITESTREAM_BUCKET is set
+if [ -z "${LITESTREAM_BUCKET}" ]; then
+    echo "Error: LITESTREAM_BUCKET environment variable is not set" >&2
+    exit 1
+fi
+sed "s|\${LITESTREAM_BUCKET}|${LITESTREAM_BUCKET}|g" /etc/litestream.yml.template > /app/litestream.yml
 
 # Remove existing db if exists
 if [ -f /app/db/prod.db ]; then
