@@ -18,17 +18,17 @@ export type Operator = {
 
 export const calculate = (tokens: Token[]): number => {
   const expr = parse(tokens)
-  return calculate_expr(expr)
+  return calculateExpr(expr)
 }
 
-const calculate_expr = (expr: Expression): number => {
+const calculateExpr = (expr: Expression): number => {
   if (expr.type === "number") {
     return expr.value
   }
 
   if (expr.type === "operator") {
-    const lhs = calculate_expr(expr.lhs)
-    const rhs = calculate_expr(expr.rhs)
+    const lhs = calculateExpr(expr.lhs)
+    const rhs = calculateExpr(expr.rhs)
     switch (expr.value) {
       case "+":
         return lhs + rhs
@@ -44,10 +44,10 @@ const calculate_expr = (expr: Expression): number => {
 }
 
 // primary = "(" expr ")" | number
-const parse_primary = (tokens: Token[]): [Expression, Token[]] => {
+const parsePrimary = (tokens: Token[]): [Expression, Token[]] => {
   const token = tokens[0]
   if (token === "(") {
-    const [expr, rest] = parse_expr(tokens.slice(1))
+    const [expr, rest] = parseExpr(tokens.slice(1))
     if (rest[0] !== ")") {
       throw new Error("Invalid expression, expected ')'")
     }
@@ -60,12 +60,12 @@ const parse_primary = (tokens: Token[]): [Expression, Token[]] => {
 }
 
 // mul = primary ("*" primary | "/" primary)*
-const parse_mul = (tokens: Token[]): [Expression, Token[]] => {
-  let [lhs, rest] = parse_primary(tokens)
+const parseMul = (tokens: Token[]): [Expression, Token[]] => {
+  let [lhs, rest] = parsePrimary(tokens)
   while (rest.length > 0) {
     const token = rest[0]
     if (token === "*" || token === "/") {
-      const [rhs, rest2] = parse_primary(rest.slice(1))
+      const [rhs, rest2] = parsePrimary(rest.slice(1))
       lhs = { type: "operator", value: token, lhs, rhs }
       rest = rest2
     } else {
@@ -76,12 +76,12 @@ const parse_mul = (tokens: Token[]): [Expression, Token[]] => {
 }
 
 // expr = mul ("+" mul | "-" mul)*
-const parse_expr = (tokens: Token[]): [Expression, Token[]] => {
-  let [lhs, rest] = parse_mul(tokens)
+const parseExpr = (tokens: Token[]): [Expression, Token[]] => {
+  let [lhs, rest] = parseMul(tokens)
   while (rest.length > 0) {
     const token = rest[0]
     if (token === "+" || token === "-") {
-      const [rhs, rest2] = parse_mul(rest.slice(1))
+      const [rhs, rest2] = parseMul(rest.slice(1))
       lhs = { type: "operator", value: token, lhs, rhs }
       rest = rest2
     } else {
@@ -95,7 +95,7 @@ const parse_expr = (tokens: Token[]): [Expression, Token[]] => {
  * 数式のトークン列をパースして、計算順序を表す木構造を返す
  */
 const parse = (tokens: Token[]): Expression => {
-  const [expr, rest] = parse_expr(tokens)
+  const [expr, rest] = parseExpr(tokens)
   if (rest.length > 0) {
     throw new Error("Invalid expression")
   }

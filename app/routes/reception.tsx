@@ -226,7 +226,7 @@ export default function Reception() {
                   </Text>
                 </FormControl>
               </Stack>
-              <Calculator />
+              <Calculator total={total} />
             </VStack>
           </ModalBody>
           <ModalFooter gap={4}>
