@@ -1,4 +1,8 @@
-export type Token = number | "+" | "-" | "*" | "/" | "(" | ")"
+export type ParenthesisToken = "(" | ")"
+
+export type OperatorToken = "+" | "-" | "*" | "/"
+
+export type Token = number | OperatorToken | ParenthesisToken
 
 export type Expression = Num | Operator
 
@@ -11,10 +15,27 @@ export type Num = {
 
 export type Operator = {
   type: "operator"
-  value: "+" | "-" | "*" | "/"
+  value: OperatorToken
   lhs: Expression
   rhs: Expression
 }
+
+export const renderToken = (token: Token): string => {
+  switch (token) {
+    case "*":
+      return "×"
+    case "-":
+      return "−"
+    default:
+      return token.toString()
+  }
+}
+
+export const isOperator = (token?: Token): token is OperatorToken =>
+  token === "+" || token === "-" || token === "*" || token === "/"
+
+export const isNumber = (token?: Token): token is number =>
+  typeof token === "number"
 
 export const calculate = (tokens: Token[]): number => {
   const expr = parse(tokens)

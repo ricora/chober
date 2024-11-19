@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import { calculate as calculateTokens, Token } from "~/lib/calculate"
 
 export const useTokens = () => {
@@ -11,7 +11,7 @@ export const useTokens = () => {
 
   const onInput = (token: Token) => {
     if (typeof token === "number") {
-      setInput((prev) => prev * 10 + token)
+      setInput((prev) => Number.parseInt(prev.toString() + token.toString()))
     } else {
       pushToken(input)
       setInput(0)
