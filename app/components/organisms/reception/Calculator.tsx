@@ -8,7 +8,7 @@ export type CalculatorProps = {
 }
 
 export const Calculator: FC<CalculatorProps> = memo(({ total }) => {
-  const { onInput, clear, tokens, input, calculate, pushToken } = useTokens()
+  const { onInput, clear, tokens, input, calculate } = useTokens()
 
   return (
     <VStack
