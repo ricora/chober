@@ -115,18 +115,6 @@ export const action = async ({
         })
       }
       try {
-        const isExist = await existProduct(product.value.product_name)
-        if (isExist) {
-          return json({
-            method: "update",
-            success: false,
-            result: product.reply({
-              fieldErrors: {
-                product_name: ["同じ名前の商品がすでに存在します"],
-              },
-            }),
-          })
-        }
         await updateProduct(product.value.product_id, {
           product_name: product.value.product_name,
           price: product.value.price,
