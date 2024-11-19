@@ -5,7 +5,12 @@ import { Button, FormControl, FormLabel, Input, VStack } from "@chakra-ui/react"
 import { FieldInfo } from "~/components/molecules/FieldInfo"
 import * as v from "valibot"
 import { getValibotConstraint, parseWithValibot } from "conform-to-valibot"
-import { getInputProps, SubmissionResult, useForm } from "@conform-to/react"
+import {
+  getFormProps,
+  getInputProps,
+  SubmissionResult,
+  useForm,
+} from "@conform-to/react"
 import { useNavigation } from "@remix-run/react"
 
 export type ProductFormValues = (
@@ -85,22 +90,11 @@ export const ProductForm: FC<ProductFormProps> = ({
     lastResult: navigation.state === "idle" ? lastResult : null,
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
-    onSubmit: () => {
-      console.log("onSubmit")
-    },
-    onValidate: ({ formData }) => {
-      return parseWithValibot(formData, { schema })
-    },
+    onValidate: ({ formData }) => parseWithValibot(formData, { schema }),
   })
 
   return (
-    <Form
-      method="post"
-      id={form.id}
-      onSubmit={form.onSubmit}
-      w="full"
-      noValidate
-    >
+    <Form {...getFormProps(form)} method="post" w="full" noValidate>
       <VStack gap={4}>
         <Input
           {...getInputProps(fields._method, { type: "text" })}
