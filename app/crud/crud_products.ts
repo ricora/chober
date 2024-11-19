@@ -60,14 +60,6 @@ export async function deleteAllProducts() {
 }
 
 //Productの削除
-// export async function deleteProduct(product_id: number) {
-//   console.log("Deleting product with ID:", product_id);
-//   return await prisma.products.delete({
-//     where: {
-//       product_id: product_id,
-//     },
-//   });
-// }
 export async function deleteProduct(product_id: number) {
   console.log("Deleting product with ID:", product_id)
 
