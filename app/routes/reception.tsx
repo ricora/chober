@@ -80,6 +80,7 @@ export default function Reception() {
     if (actionData?.success === true) {
       setOrder([])
       setTotal(0)
+      setMemos({})
       // setDecision(false)
       showMessage({ title: "注文しました", status: "success" })
       onClose()
