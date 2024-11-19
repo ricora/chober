@@ -4,4 +4,5 @@ export type TypeProduct = {
   price: number
   stock: number
   image: string
+  deleted_at?: string | null
 }
