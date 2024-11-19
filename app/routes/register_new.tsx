@@ -201,15 +201,7 @@ export default Register
 
 const CreateProductForm: FC = () => {
   const actionData = useActionData<typeof action>()
-  const lastResult = useMemo(() => {
-    if (
-      actionData != null &&
-      "method" in actionData &&
-      actionData?.method === "create"
-    ) {
-      return actionData.result
-    }
-  }, [actionData])
+  const lastResult = useLastResult("create", actionData)
   const { showMessage } = useMessage()
 
   useEffect(() => {
@@ -308,15 +300,7 @@ const ChangeProductModal: FC<{
   onClose: () => void
 }> = ({ product, isOpen, onClose }) => {
   const actionData = useActionData<typeof action>()
-  const lastResult = useMemo(() => {
-    if (
-      actionData != null &&
-      "method" in actionData &&
-      actionData?.method === "update"
-    ) {
-      return actionData.result
-    }
-  }, [actionData])
+  const lastResult = useLastResult("update", actionData)
   const { showMessage } = useMessage()
 
   useEffect(() => {
@@ -407,4 +391,19 @@ const DeleteProductModal: FC<{
       </ModalContent>
     </Modal>
   )
+}
+
+const useLastResult = (
+  method: string,
+  actionData: ActionResponse | undefined,
+) => {
+  return useMemo(() => {
+    if (
+      actionData != null &&
+      "method" in actionData &&
+      actionData?.method === method
+    ) {
+      return actionData.result
+    }
+  }, [actionData])
 }
