@@ -1,14 +1,14 @@
 import { Button, Grid, Text, Tooltip, VStack } from "@chakra-ui/react"
 import { FC, memo } from "react"
-import { useTokens } from "~/hooks/useToken"
-import { renderToken } from "~/lib/calculate"
+import { useCalculator } from "~/hooks/useCalculator"
+import { renderToken } from "~/lib/calculator"
 
 export type CalculatorProps = {
   total: number
 }
 
 export const Calculator: FC<CalculatorProps> = memo(({ total }) => {
-  const { onInput, clear, tokens, input, calculate } = useTokens()
+  const { onInput, clear, tokens, input, calculate } = useCalculator()
 
   return (
     <VStack

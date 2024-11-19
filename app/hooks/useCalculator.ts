@@ -1,7 +1,7 @@
 import { useState } from "react"
-import { calculate as calculateTokens, Token } from "~/lib/calculate"
+import { calculate as calculateTokens, Token } from "~/lib/calculator"
 
-export const useTokens = () => {
+export const useCalculator = () => {
   const [tokens, setTokens] = useState<Token[]>([])
   const [input, setInput] = useState<number>(0)
 
