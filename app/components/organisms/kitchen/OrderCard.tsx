@@ -3,18 +3,22 @@ import { Form } from "@remix-run/react"
 import { FC, memo } from "react"
 import PropTypes from "prop-types"
 
+type OrderItem = {
+  productName: string
+  quantity: number
+  memo?: string | null
+}
+
 type Props = {
   orderTime: string
   orderId: number
-  productNames: (string | null | undefined)[]
+  orderItems: OrderItem[]
   status: string
-  quantities: (number | null | undefined)[]
   tableNumber: number
 }
 
 export const OrderCard: FC<Props> = memo((props) => {
-  const { orderTime, orderId, productNames, status, quantities, tableNumber } =
-    props
+  const { orderTime, orderId, orderItems, status, tableNumber } = props
 
   return (
     <Box
@@ -28,10 +32,17 @@ export const OrderCard: FC<Props> = memo((props) => {
     >
       <Text>{orderTime}</Text>
       <Stack textAlign={"center"}>
-        {productNames.map((name, index) => (
-          <Text key={index}>
-            {name}--数量：{quantities[index]}
-          </Text>
+        {orderItems.map((item, index) => (
+          <Box key={index}>
+            <Text>
+              {item.productName}--数量：{item.quantity}
+            </Text>
+            {item.memo && item.memo.trim() !== "" && (
+              <Text fontSize="sm" color="red.500" fontWeight="bold" mb={2}>
+                ※{item.memo}
+              </Text>
+            )}
+          </Box>
         ))}
         <Text>-------------------------</Text>
         <Text>テーブル番号：{tableNumber}</Text>
@@ -74,8 +85,13 @@ OrderCard.displayName = "OrderCard"
 OrderCard.propTypes = {
   orderTime: PropTypes.string.isRequired,
   orderId: PropTypes.number.isRequired,
-  productNames: PropTypes.arrayOf(PropTypes.string).isRequired,
+  orderItems: PropTypes.arrayOf(
+    PropTypes.shape({
+      productName: PropTypes.string.isRequired,
+      quantity: PropTypes.number.isRequired,
+      memo: PropTypes.string,
+    }).isRequired,
+  ).isRequired,
   status: PropTypes.string.isRequired,
-  quantities: PropTypes.arrayOf(PropTypes.number).isRequired,
   tableNumber: PropTypes.number.isRequired,
 }

@@ -13,6 +13,7 @@ import {
   ModalOverlay,
   Stack,
   Text,
+  Textarea,
   useDisclosure,
   VStack,
   Wrap,
@@ -40,6 +41,7 @@ type TypeOrderDetail = {
   product_id: number
   quantity: number
   price: number
+  memo?: string
 }
 
 type ActionData = {
@@ -51,6 +53,7 @@ export default function Reception() {
   const { products: products } = useLoaderData<typeof loader>()
   const [order, setOrder] = useState<TypeOrderDetail[]>([])
   const [total, setTotal] = useState(0)
+  const [memos, setMemos] = useState<{ [key: number]: string }>({})
   // const [decision, setDecision] = useState(false)
   const actionData = useActionData<ActionData>()
   const { showMessage } = useMessage()
@@ -147,6 +150,13 @@ export default function Reception() {
     setTableNumber(e.target.value)
   }
 
+  const handleMemoChange = (productId: number, memo: string) => {
+    setMemos((prev) => ({
+      ...prev,
+      [productId]: memo,
+    }))
+  }
+
   return (
     <div>
       <Box left="10">
@@ -210,6 +220,16 @@ export default function Reception() {
                           商品名：{item.product_name} 商品ID：{item.product_id}
                         </Text>
                         <Text>数量：{item.quantity}</Text>
+                        <Textarea
+                          placeholder="特別な指示があればこちらに入力してください"
+                          value={memos[item.product_id] || ""}
+                          onChange={(e) =>
+                            handleMemoChange(item.product_id, e.target.value)
+                          }
+                          size="sm"
+                          resize="vertical"
+                          mt={2}
+                        />
                       </Stack>
                     ))}
                   </Stack>
@@ -240,6 +260,11 @@ export default function Reception() {
                     name="product_id"
                   />
                   <Input type="hidden" value={item.quantity} name="quantity" />
+                  <Input
+                    type="hidden"
+                    value={memos[item.product_id] || ""}
+                    name="memo"
+                  />
                 </div>
               ))}
               <Input type="hidden" value={tableNumber} name="table_number" />
@@ -266,6 +291,7 @@ export const action: ActionFunction = async ({
 
   const product_ids = formData.getAll("product_id").map(Number)
   const quantities = formData.getAll("quantity").map(Number)
+  const memos = formData.getAll("memo") as string[]
   const table_number = Number(formData.get("table_number"))
 
   if (table_number === 0) {
@@ -280,12 +306,14 @@ export const action: ActionFunction = async ({
 
     product_ids.map(async (product_id, index) => {
       const quantity = quantities[index]
+      const memo = memos[index]
       const product = products.find((p) => p.product_id === product_id)
 
       await createOrderDetail({
         order_id: order.order_id,
         product_id: product_id,
         quantity: quantity,
+        memo: memo || "",
       })
 
       await updateStock({

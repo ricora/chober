@@ -8,12 +8,14 @@ export async function createOrderDetail(data: {
   order_id: number
   product_id: number
   quantity: number
+  memo?: string
 }) {
   return await prisma.order_details.create({
     data: {
       order_id: data.order_id,
       product_id: data.product_id,
       quantity: data.quantity,
+      memo: data.memo || "",
     },
   })
 }
