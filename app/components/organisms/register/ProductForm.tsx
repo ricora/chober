@@ -45,13 +45,7 @@ export const createProductSchema = v.object({
       `在庫数は${Number.MAX_SAFE_INTEGER}以下で入力してください`,
     ),
   ),
-  image: v.optional(
-    v.pipe(
-      v.string("商品画像は文字列で入力してください"),
-      v.url("商品画像は画像URLで入力してください"),
-    ),
-    "https://raw.githubusercontent.com/ricora/ricora-beats/refs/heads/main/dist/assets/skin/no_image.png",
-  ),
+  image: v.optional(v.pipe(v.string(), v.url())),
 })
 
 export const updateProductSchema = v.object({
