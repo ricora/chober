@@ -69,10 +69,7 @@ export default function Kitchen() {
             return {
               productName: product?.product_name || "",
               quantity: detail.quantity,
-<<<<<<< HEAD
               deleted: product?.deleted_at != null,
-=======
->>>>>>> main
             }
           })
 

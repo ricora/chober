@@ -82,7 +82,6 @@ export default function OrderTable() {
                   minute: "2-digit",
                 },
               )
-              console.log({ productIds, filteredProducts })
 
               return (
                 <Tr key={order.order_id}>

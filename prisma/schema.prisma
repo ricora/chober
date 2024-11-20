@@ -27,7 +27,6 @@ model Order_details {
   order_id        Int
   product_id      Int
   quantity        Int
-  memo            String?
   orders          Orders   @relation(fields: [order_id], references: [order_id])
   products        Products @relation(fields: [product_id], references: [product_id])
 }

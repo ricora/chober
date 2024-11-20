@@ -40,7 +40,6 @@ type TypeOrderDetail = {
   product_id: number
   quantity: number
   price: number
-  memo?: string
 }
 
 type ActionData = {
@@ -281,7 +280,6 @@ export const action: ActionFunction = async ({
 
   const product_ids = formData.getAll("product_id").map(Number)
   const quantities = formData.getAll("quantity").map(Number)
-  const memos = formData.getAll("memo") as string[]
   const table_number = Number(formData.get("table_number"))
   const order_memo = formData.get("order_memo") as string
 
@@ -298,14 +296,12 @@ export const action: ActionFunction = async ({
 
     product_ids.map(async (product_id, index) => {
       const quantity = quantities[index]
-      const memo = memos[index]
       const product = products.find((p) => p.product_id === product_id)
 
       await createOrderDetail({
         order_id: order.order_id,
         product_id: product_id,
         quantity: quantity,
-        memo: memo || "",
       })
 
       await updateStock({
