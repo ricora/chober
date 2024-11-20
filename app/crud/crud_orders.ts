@@ -7,11 +7,13 @@ const prisma = new PrismaClient()
 export async function createOrder(data: {
   table_number: number
   status: string
+  memo?: string
 }) {
   const order = await prisma.orders.create({
     data: {
       table_number: data.table_number,
       status: data.status,
+      memo: data.memo || "",
     },
   })
   return order
