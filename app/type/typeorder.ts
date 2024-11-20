@@ -3,4 +3,5 @@ export type TypeOrder = {
   table_number: number
   status: string
   createTime: string
+  memo?: string
 }

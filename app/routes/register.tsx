@@ -36,6 +36,7 @@ import { TypeProduct } from "~/type/typeproduct"
 import * as v from "valibot"
 import { SubmissionResult } from "@conform-to/react"
 import { useMessage } from "~/hooks/useMessage"
+import noImage from "~/assets/images/no_image.png?url"
 
 export const loader = async () => {
   const products = await readProduct()
@@ -115,18 +116,6 @@ export const action = async ({
         })
       }
       try {
-        const isExist = await existProduct(product.value.product_name)
-        if (isExist) {
-          return json({
-            method: "update",
-            success: false,
-            result: product.reply({
-              fieldErrors: {
-                product_name: ["同じ名前の商品がすでに存在します"],
-              },
-            }),
-          })
-        }
         await updateProduct(product.value.product_id, {
           product_name: product.value.product_name,
           price: product.value.price,
@@ -327,7 +316,10 @@ const ChangeProductModal: FC<{
             _method="update"
             submitText="変更"
             lastResult={lastResult}
-            defaultValue={product}
+            defaultValue={{
+              ...product,
+              image: product?.image === noImage ? "" : product?.image,
+            }}
           />
         </ModalBody>
       </ModalContent>

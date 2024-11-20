@@ -10,9 +10,9 @@ import {
   ModalCloseButton,
   ModalContent,
   ModalFooter,
-  ModalOverlay,
   Stack,
   Text,
+  Textarea,
   useDisclosure,
   VStack,
   Wrap,
@@ -51,6 +51,7 @@ export default function Reception() {
   const { products: products } = useLoaderData<typeof loader>()
   const [order, setOrder] = useState<TypeOrderDetail[]>([])
   const [total, setTotal] = useState(0)
+  const [orderMemo, setOrderMemo] = useState("")
   // const [decision, setDecision] = useState(false)
   const actionData = useActionData<ActionData>()
   const { showMessage } = useMessage()
@@ -77,6 +78,7 @@ export default function Reception() {
     if (actionData?.success === true) {
       setOrder([])
       setTotal(0)
+      setOrderMemo("")
       // setDecision(false)
       showMessage({ title: "注文しました", status: "success" })
       onClose()
@@ -147,6 +149,10 @@ export default function Reception() {
     setTableNumber(e.target.value)
   }
 
+  const handleMemoChange = (memo: string) => {
+    setOrderMemo(memo)
+  }
+
   return (
     <div>
       <Box left="10">
@@ -193,7 +199,6 @@ export default function Reception() {
       </div>
 
       <Modal isOpen={isOpen} onClose={onClose} motionPreset="slideInBottom">
-        <ModalOverlay />
         <ModalContent pb={2}>
           <ModalCloseButton />
           <ModalBody mx={4}>
@@ -224,6 +229,14 @@ export default function Reception() {
                       bg="gray.300"
                     />
                   </Text>
+                  <Text mt={4}>注文メモ：</Text>
+                  <Textarea
+                    placeholder="注文全体に対する特別な指示があればこちらに入力してください"
+                    value={orderMemo}
+                    onChange={(e) => handleMemoChange(e.target.value)}
+                    size="sm"
+                    resize="vertical"
+                  />
                 </FormControl>
               </Stack>
               <Calculator total={total} />
@@ -243,6 +256,7 @@ export default function Reception() {
                 </div>
               ))}
               <Input type="hidden" value={tableNumber} name="table_number" />
+              <Input type="hidden" value={orderMemo} name="order_memo" />
               <Button type="submit" colorScheme="blue">
                 確定
               </Button>
@@ -267,6 +281,7 @@ export const action: ActionFunction = async ({
   const product_ids = formData.getAll("product_id").map(Number)
   const quantities = formData.getAll("quantity").map(Number)
   const table_number = Number(formData.get("table_number"))
+  const order_memo = formData.get("order_memo") as string
 
   if (table_number === 0) {
     return { success: false }
@@ -274,6 +289,7 @@ export const action: ActionFunction = async ({
     const order = await createOrder({
       table_number: table_number,
       status: "accept",
+      memo: order_memo,
     })
 
     const products = await readProduct()
