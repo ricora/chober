@@ -14,6 +14,17 @@ export function meta() {
   return [{ title: "Order" }, { description: "Order for Jazz Club" }]
 }
 
+export function links() {
+  return [
+    {
+      rel: "icon",
+      href: "/static/icon.svg",
+      sizes: "any",
+      type: "image/svg+xml",
+    },
+  ]
+}
+
 export default function App() {
   return (
     <html lang="ja" style={{ overflowX: "hidden" }}>
