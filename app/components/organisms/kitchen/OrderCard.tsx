@@ -6,7 +6,6 @@ import PropTypes from "prop-types"
 type OrderItem = {
   productName: string
   quantity: number
-  memo?: string | null
 }
 
 type Props = {
@@ -15,10 +14,11 @@ type Props = {
   orderItems: OrderItem[]
   status: string
   tableNumber: number
+  memo?: string
 }
 
 export const OrderCard: FC<Props> = memo((props) => {
-  const { orderTime, orderId, orderItems, status, tableNumber } = props
+  const { orderTime, orderId, orderItems, status, tableNumber, memo } = props
 
   return (
     <Box
@@ -37,15 +37,15 @@ export const OrderCard: FC<Props> = memo((props) => {
             <Text>
               {item.productName}--数量：{item.quantity}
             </Text>
-            {item.memo && item.memo.trim() !== "" && (
-              <Text fontSize="sm" color="red.500" fontWeight="bold" mb={2}>
-                ※{item.memo}
-              </Text>
-            )}
           </Box>
         ))}
         <Text>-------------------------</Text>
         <Text>テーブル番号：{tableNumber}</Text>
+        {memo && memo.trim() !== "" && (
+          <Text fontSize="sm" color="red.500" fontWeight="bold" mb={2}>
+            ※注文メモ：{memo}
+          </Text>
+        )}
         <Text>ステータス：{status}</Text>
         {status === "accept" ? (
           <Form method="post">
@@ -94,4 +94,5 @@ OrderCard.propTypes = {
   ).isRequired,
   status: PropTypes.string.isRequired,
   tableNumber: PropTypes.number.isRequired,
+  memo: PropTypes.string,
 }

@@ -69,7 +69,6 @@ export default function Kitchen() {
             return {
               productName: product?.product_name || "",
               quantity: detail.quantity,
-              memo: detail.memo || "",
             }
           })
 
@@ -93,6 +92,7 @@ export default function Kitchen() {
                 orderItems={orderItems}
                 tableNumber={order.table_number}
                 status={order.status}
+                memo={order.memo}
               />
             </WrapItem>
           )
