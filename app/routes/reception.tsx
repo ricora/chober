@@ -18,7 +18,7 @@ import {
   Wrap,
   WrapItem,
 } from "@chakra-ui/react"
-import { ActionFunction, ActionFunctionArgs, json } from "@remix-run/node"
+import { ActionFunction, json } from "@remix-run/node"
 import { Form, useActionData, useLoaderData } from "@remix-run/react"
 import { useEffect, useState } from "react"
 import { Calculator } from "~/components/organisms/reception/Calculator"
@@ -79,12 +79,12 @@ export default function Reception() {
       setOrder([])
       setTotal(0)
       setOrderMemo("")
-      // setDecision(false)
       showMessage({ title: "注文しました", status: "success" })
       onClose()
       setTableNumber("")
     } else if (actionData?.success === false) {
-      showMessage({ title: "テーブル番号を記入してください", status: "error" })
+      const errorMessage = actionData.error || "エラーが発生しました"
+      showMessage({ title: errorMessage, status: "error" })
     }
   }, [actionData, onClose, showMessage])
 
@@ -273,9 +273,7 @@ export const loader = async () => {
   return json({ products: response })
 }
 
-export const action: ActionFunction = async ({
-  request,
-}: ActionFunctionArgs) => {
+export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
 
   const product_ids = formData.getAll("product_id").map(Number)
@@ -283,8 +281,12 @@ export const action: ActionFunction = async ({
   const table_number = Number(formData.get("table_number"))
   const order_memo = formData.get("order_memo") as string
 
+  if (order_memo.length > 100) {
+    return { success: false, error: "メモは100文字以内で入力してください" }
+  }
+
   if (table_number === 0) {
-    return { success: false }
+    return { success: false, error: "テーブル番号を入力してください" }
   } else {
     const order = await createOrder({
       table_number: table_number,
