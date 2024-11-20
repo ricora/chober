@@ -11,7 +11,13 @@ import theme from "./styles/theme"
 import Sidebar from "./routes/side"
 
 export function meta() {
-  return [{ title: "Order" }, { description: "Order for Jazz Club" }]
+  return [
+    { title: "Chober" },
+    {
+      description:
+        "Order management web application for food stalls at school festivals",
+    },
+  ]
 }
 
 export function links() {
