@@ -203,7 +203,7 @@ const CreateProductForm: FC = () => {
         status: "error",
       })
     }
-  }, [actionData])
+  }, [actionData, showMessage])
 
   return (
     <VStack
@@ -303,7 +303,7 @@ const ChangeProductModal: FC<{
         status: "error",
       })
     }
-  }, [actionData])
+  }, [actionData, onClose, showMessage])
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} motionPreset="slideInBottom">
@@ -354,7 +354,7 @@ const DeleteProductModal: FC<{
         status: "error",
       })
     }
-  }, [actionData])
+  }, [actionData, onClose, showMessage])
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} motionPreset="slideInBottom">
@@ -397,5 +397,5 @@ const useLastResult = (
     ) {
       return actionData.result
     }
-  }, [actionData])
+  }, [actionData, method])
 }
