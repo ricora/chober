@@ -17,6 +17,7 @@ model Orders {
   order_id     Int             @id @default(autoincrement())
   table_number Int
   status       String
+  memo         String?
   orderDetails Order_details[]
   createTime   DateTime        @default(now())
 }

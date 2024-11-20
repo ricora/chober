@@ -10,7 +10,6 @@ import {
   ModalCloseButton,
   ModalContent,
   ModalFooter,
-  ModalOverlay,
   Stack,
   Text,
   Textarea,
@@ -53,7 +52,7 @@ export default function Reception() {
   const { products: products } = useLoaderData<typeof loader>()
   const [order, setOrder] = useState<TypeOrderDetail[]>([])
   const [total, setTotal] = useState(0)
-  const [memos, setMemos] = useState<{ [key: number]: string }>({})
+  const [orderMemo, setOrderMemo] = useState("")
   // const [decision, setDecision] = useState(false)
   const actionData = useActionData<ActionData>()
   const { showMessage } = useMessage()
@@ -80,6 +79,7 @@ export default function Reception() {
     if (actionData?.success === true) {
       setOrder([])
       setTotal(0)
+      setOrderMemo("")
       // setDecision(false)
       showMessage({ title: "注文しました", status: "success" })
       onClose()
@@ -150,11 +150,8 @@ export default function Reception() {
     setTableNumber(e.target.value)
   }
 
-  const handleMemoChange = (productId: number, memo: string) => {
-    setMemos((prev) => ({
-      ...prev,
-      [productId]: memo,
-    }))
+  const handleMemoChange = (memo: string) => {
+    setOrderMemo(memo)
   }
 
   return (
@@ -203,7 +200,6 @@ export default function Reception() {
       </div>
 
       <Modal isOpen={isOpen} onClose={onClose} motionPreset="slideInBottom">
-        <ModalOverlay />
         <ModalContent pb={2}>
           <ModalCloseButton />
           <ModalBody mx={4}>
@@ -220,16 +216,6 @@ export default function Reception() {
                           商品名：{item.product_name} 商品ID：{item.product_id}
                         </Text>
                         <Text>数量：{item.quantity}</Text>
-                        <Textarea
-                          placeholder="特別な指示があればこちらに入力してください"
-                          value={memos[item.product_id] || ""}
-                          onChange={(e) =>
-                            handleMemoChange(item.product_id, e.target.value)
-                          }
-                          size="sm"
-                          resize="vertical"
-                          mt={2}
-                        />
                       </Stack>
                     ))}
                   </Stack>
@@ -244,9 +230,17 @@ export default function Reception() {
                       bg="gray.300"
                     />
                   </Text>
+                  <Text mt={4}>注文メモ：</Text>
+                  <Textarea
+                    placeholder="注文全体に対する特別な指示があればこちらに入力してください"
+                    value={orderMemo}
+                    onChange={(e) => handleMemoChange(e.target.value)}
+                    size="sm"
+                    resize="vertical"
+                  />
                 </FormControl>
               </Stack>
-              <Calculator />
+              <Calculator total={total} />
             </VStack>
           </ModalBody>
           <ModalFooter gap={4}>
@@ -260,14 +254,10 @@ export default function Reception() {
                     name="product_id"
                   />
                   <Input type="hidden" value={item.quantity} name="quantity" />
-                  <Input
-                    type="hidden"
-                    value={memos[item.product_id] || ""}
-                    name="memo"
-                  />
                 </div>
               ))}
               <Input type="hidden" value={tableNumber} name="table_number" />
+              <Input type="hidden" value={orderMemo} name="order_memo" />
               <Button type="submit" colorScheme="blue">
                 確定
               </Button>
@@ -293,6 +283,7 @@ export const action: ActionFunction = async ({
   const quantities = formData.getAll("quantity").map(Number)
   const memos = formData.getAll("memo") as string[]
   const table_number = Number(formData.get("table_number"))
+  const order_memo = formData.get("order_memo") as string
 
   if (table_number === 0) {
     return { success: false }
@@ -300,6 +291,7 @@ export const action: ActionFunction = async ({
     const order = await createOrder({
       table_number: table_number,
       status: "accept",
+      memo: order_memo,
     })
 
     const products = await readProduct()

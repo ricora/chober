@@ -1,13 +1,17 @@
 //Productsの操作
 import { PrismaClient } from "@prisma/client"
 import { TypeProduct } from "~/type/typeproduct"
+import noImage from "~/assets/images/no_image.png?url"
 
 const prisma = new PrismaClient()
 
 //productの追加
 export async function createProduct(data: Omit<TypeProduct, "product_id">) {
   return await prisma.products.create({
-    data,
+    data: {
+      ...data,
+      image: data.image ?? noImage,
+    },
   })
 }
 
@@ -29,7 +33,10 @@ export async function updateProduct(
     where: {
       product_id,
     },
-    data,
+    data: {
+      ...data,
+      image: data.image ?? noImage,
+    },
   })
 }
 

@@ -1,45 +1,67 @@
-import { Box, Button, HStack, Text, VStack } from "@chakra-ui/react"
+import { Button, Grid, Text, Tooltip, VStack } from "@chakra-ui/react"
 import { FC, memo } from "react"
+import { useCalculator } from "~/hooks/useCalculator"
+import { renderToken } from "~/lib/calculator"
 
-export const Calculator: FC = memo(() => {
+export type CalculatorProps = {
+  total: number
+}
+
+export const Calculator: FC<CalculatorProps> = memo(({ total }) => {
+  const { onInput, clear, tokens, input, calculate } = useCalculator()
+
   return (
-    <Box
-      w="300px"
-      h="250px"
+    <VStack
+      w="fit-content"
       bg="blackAlpha.500"
       borderRadius="10px"
       shadow="lg"
       p={4}
+      gap={4}
     >
-      <VStack>
-        <Text></Text>
-        <HStack>
-          <Button>7</Button>
-          <Button>8</Button>
-          <Button>9</Button>
-          <Button>*</Button>
-        </HStack>
-        <HStack>
-          <Button>4</Button>
-          <Button>5</Button>
-          <Button>6</Button>
-          <Button>-</Button>
-        </HStack>
-        <HStack>
-          <Button>1</Button>
-          <Button>2</Button>
-          <Button>3</Button>
-          <Button>+</Button>
-        </HStack>
-        <HStack>
-          <Button>0</Button>
-          <Button>T</Button>
-          <Button>C</Button>
-          <Button>=</Button>
-        </HStack>
+      <VStack
+        gap={0}
+        py={2}
+        px={4}
+        minH={20}
+        justifyContent="center"
+        alignItems="end"
+        bg="InfoBackground"
+        rounded="md"
+        width="full"
+      >
+        <Text color="GrayText">{tokens.map(renderToken).join(" ")}</Text>
+        <Text color="InfoText" fontSize="xl">
+          {input}
+        </Text>
       </VStack>
-    </Box>
+      <Grid
+        w="fit-content"
+        gap={4}
+        templateColumns="repeat(4, 1fr)"
+        placeItems="center"
+        placeContent="center"
+      >
+        <Button onClick={() => onInput(7)}>7</Button>
+        <Button onClick={() => onInput(8)}>8</Button>
+        <Button onClick={() => onInput(9)}>9</Button>
+        <Button onClick={() => onInput("*")}>×</Button>
+        <Button onClick={() => onInput(4)}>4</Button>
+        <Button onClick={() => onInput(5)}>5</Button>
+        <Button onClick={() => onInput(6)}>6</Button>
+        <Button onClick={() => onInput("-")}>−</Button>
+        <Button onClick={() => onInput(1)}>1</Button>
+        <Button onClick={() => onInput(2)}>2</Button>
+        <Button onClick={() => onInput(3)}>3</Button>
+        <Button onClick={() => onInput("+")}>+</Button>
+        <Button onClick={() => onInput(0)}>0</Button>
+        <Tooltip hasArrow label="合計金額">
+          <Button onClick={() => onInput(total)}>T</Button>
+        </Tooltip>
+        <Button onClick={() => clear()}>C</Button>
+        <Button onClick={() => calculate()}>=</Button>
+      </Grid>
+    </VStack>
   )
 })
-
 Calculator.displayName = "Calculator"
