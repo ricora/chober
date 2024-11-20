@@ -14,8 +14,7 @@ export const ProductCard: FC<Props> = memo((props) => {
 
   return (
     <Box
-      w="full"
-      maxW="300px"
+      w="300px"
       h="fit-content"
       bg={"white"}
       borderRadius="lg"
