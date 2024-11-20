@@ -6,6 +6,7 @@ import PropTypes from "prop-types"
 type OrderItem = {
   productName: string
   quantity: number
+  deleted: boolean
 }
 
 type Props = {
@@ -35,7 +36,8 @@ export const OrderCard: FC<Props> = memo((props) => {
         {orderItems.map((item, index) => (
           <Box key={index}>
             <Text>
-              {item.productName}--数量：{item.quantity}
+              {item.productName}
+              {item.deleted && " (削除済み)"} -- 数量：{item.quantity}
             </Text>
           </Box>
         ))}
@@ -90,6 +92,7 @@ OrderCard.propTypes = {
       productName: PropTypes.string.isRequired,
       quantity: PropTypes.number.isRequired,
       memo: PropTypes.string,
+      deleted: PropTypes.bool.isRequired,
     }).isRequired,
   ).isRequired,
   status: PropTypes.string.isRequired,

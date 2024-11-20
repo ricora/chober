@@ -69,6 +69,7 @@ export default function Kitchen() {
             return {
               productName: product?.product_name || "",
               quantity: detail.quantity,
+              deleted: product?.deleted_at != null,
             }
           })
 
@@ -124,7 +125,7 @@ export default function Kitchen() {
 export const loader = async () => {
   const response_orders = await readOrder()
   const response_details = await readDetail()
-  const response_products = await readProduct()
+  const response_products = await readProduct({ includeDeleted: true })
   return json({
     orders: response_orders,
     details: response_details,

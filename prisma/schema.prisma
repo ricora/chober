@@ -33,9 +33,12 @@ model Order_details {
 
 model Products {
   product_id   Int             @id @default(autoincrement())
-  product_name String          @unique
+  product_name String
   price        Int
   stock        Int
   image        String
+  deleted_at   DateTime?
   orderDetails Order_details[]
+
+  @@unique([product_name, deleted_at])
 }

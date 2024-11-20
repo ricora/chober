@@ -16,8 +16,12 @@ export async function createProduct(data: Omit<TypeProduct, "product_id">) {
 }
 
 //productの読み込み
-export async function readProduct() {
-  return await prisma.products.findMany()
+export async function readProduct({ includeDeleted = false } = {}) {
+  return await prisma.products.findMany({
+    where: {
+      deleted_at: includeDeleted ? undefined : null,
+    },
+  })
 }
 
 //商品の変更
@@ -27,7 +31,7 @@ export async function updateProduct(
 ) {
   return await prisma.products.update({
     where: {
-      product_id: product_id,
+      product_id,
     },
     data: {
       ...data,
@@ -57,6 +61,9 @@ export async function existProduct(name: string) {
       product_name: {
         equals: name,
       },
+      deleted_at: {
+        equals: null,
+      },
     },
   })
 }
@@ -67,21 +74,16 @@ export async function deleteAllProducts() {
 }
 
 //Productの削除
-// export async function deleteProduct(product_id: number) {
-//   console.log("Deleting product with ID:", product_id);
-//   return await prisma.products.delete({
-//     where: {
-//       product_id: product_id,
-//     },
-//   });
-// }
 export async function deleteProduct(product_id: number) {
   console.log("Deleting product with ID:", product_id)
 
   try {
-    const result = await prisma.products.delete({
+    const result = await prisma.products.update({
       where: {
-        product_id: product_id,
+        product_id,
+      },
+      data: {
+        deleted_at: new Date(),
       },
     })
     console.log("Product deleted successfully:", result)

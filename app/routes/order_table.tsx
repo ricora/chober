@@ -57,9 +57,6 @@ export default function OrderTable() {
               const filteredProducts = products.filter((product) =>
                 productIds.includes(product.product_id),
               )
-              const productNames = filteredProducts.map(
-                (product) => product.product_name,
-              )
               const quantities = filteredDetails.map(
                 (detail) => detail.quantity,
               )
@@ -92,11 +89,15 @@ export default function OrderTable() {
                   <Td>{createTime}</Td>
                   <Td>{order.table_number}</Td>
                   <Td>
-                    {productNames.map((name, index) => (
-                      <div key={index}>
-                        {name}--数量：{quantities[index]}
-                      </div>
-                    ))}
+                    {filteredProducts.map(
+                      ({ product_name, deleted_at }, index) => (
+                        <div key={index}>
+                          {product_name}
+                          {deleted_at != null && " (削除済み)"} -- 数量：
+                          {quantities[index]}
+                        </div>
+                      ),
+                    )}
                   </Td>
                   <Td>{totalPrice}円</Td>
                   <Td>{order.status}</Td>
@@ -113,7 +114,7 @@ export default function OrderTable() {
 export const loader = async () => {
   const response_orders = await readOrder()
   const response_details = await readDetail()
-  const response_products = await readProduct()
+  const response_products = await readProduct({ includeDeleted: true })
   return json({
     orders: response_orders,
     details: response_details,
