@@ -62,10 +62,15 @@ export default function Kitchen() {
           const filteredProducts = products.filter((product) =>
             productIds.includes(product.product_id),
           )
-          const productNames = filteredProducts.map(
-            (product) => product.product_name,
-          )
-          const quantities = filteredDetails.map((detail) => detail.quantity)
+          const orderItems = filteredDetails.map((detail) => {
+            const product = filteredProducts.find(
+              (p) => p.product_id === detail.product_id,
+            )
+            return {
+              productName: product?.product_name || "",
+              quantity: detail.quantity,
+            }
+          })
 
           const createTime = new Date(order.createTime).toLocaleString(
             "ja-JP",
@@ -84,10 +89,10 @@ export default function Kitchen() {
               <OrderCard
                 orderTime={createTime}
                 orderId={order.order_id}
-                productNames={productNames}
-                quantities={quantities}
+                orderItems={orderItems}
                 tableNumber={order.table_number}
                 status={order.status}
+                memo={order.memo}
               />
             </WrapItem>
           )
