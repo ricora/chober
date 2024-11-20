@@ -1,4 +1,4 @@
-import { Box, Button, Stack, Text } from "@chakra-ui/react"
+import { Box, Button, Image, Stack, Text } from "@chakra-ui/react"
 import { FC, memo } from "react"
 import { TypeProduct } from "~/type/typeproduct"
 import PropTypes from "prop-types"
@@ -18,7 +18,7 @@ export const ProductCard: FC<Props> = memo((props) => {
       maxW="300px"
       h="fit-content"
       bg={"white"}
-      borderRadius="10px"
+      borderRadius="lg"
       shadow="md"
       p={4}
     >
@@ -27,7 +27,11 @@ export const ProductCard: FC<Props> = memo((props) => {
         <Text>{product.product_name}</Text>
         <Text>価格：{product.price}</Text>
         <Text>在庫：{product.stock}</Text>
-        <img src={product.image} alt={`${product.product_name}の商品画像`} />
+        <Image
+          src={product.image}
+          alt={`${product.product_name}の商品画像`}
+          borderRadius="md"
+        />
         <Button onClick={() => clickDelete(product)} colorScheme="red">
           削除
         </Button>
