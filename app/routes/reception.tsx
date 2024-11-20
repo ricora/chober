@@ -20,7 +20,7 @@ import {
 } from "@chakra-ui/react"
 import { ActionFunction, json } from "@remix-run/node"
 import { Form, useActionData, useLoaderData } from "@remix-run/react"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Calculator } from "~/components/organisms/reception/Calculator"
 import { ReceptionCard } from "~/components/organisms/reception/ReceptionCard"
 import { createOrderDetail } from "~/crud/crud_details"
@@ -51,7 +51,7 @@ export default function Reception() {
   const { products: products } = useLoaderData<typeof loader>()
   const [order, setOrder] = useState<TypeOrderDetail[]>([])
   const [total, setTotal] = useState(0)
-  const [orderMemo, setOrderMemo] = useState("")
+  const orderMemoRef = useRef<HTMLTextAreaElement>(null)
   // const [decision, setDecision] = useState(false)
   const actionData = useActionData<ActionData>()
   const { showMessage } = useMessage()
@@ -78,7 +78,7 @@ export default function Reception() {
     if (actionData?.success === true) {
       setOrder([])
       setTotal(0)
-      setOrderMemo("")
+      if (orderMemoRef.current) orderMemoRef.current.value = ""
       showMessage({ title: "注文しました", status: "success" })
       onClose()
       setTableNumber("")
@@ -149,10 +149,6 @@ export default function Reception() {
     setTableNumber(e.target.value)
   }
 
-  const handleMemoChange = (memo: string) => {
-    setOrderMemo(memo)
-  }
-
   return (
     <div>
       <Box left="10">
@@ -201,49 +197,51 @@ export default function Reception() {
       <Modal isOpen={isOpen} onClose={onClose} motionPreset="slideInBottom">
         <ModalContent pb={2}>
           <ModalCloseButton />
-          <ModalBody mx={4}>
-            <VStack>
-              <Stack spacing={4}>
-                <FormControl>
-                  <Heading fontSize="1.75rem" mb={4}>
-                    注文内容
-                  </Heading>
-                  <Stack spacing={3}>
-                    {order.map((item) => (
-                      <Stack key={item.product_id} spacing={0}>
-                        <Text>
-                          商品名：{item.product_name} 商品ID：{item.product_id}
-                        </Text>
-                        <Text>数量：{item.quantity}</Text>
-                      </Stack>
-                    ))}
-                  </Stack>
-                  <Text>--------------------------------------------</Text>
-                  <Text>合計：{total}円</Text>
-                  <Text>
-                    テーブル番号：
-                    <Input
-                      type="number"
-                      onChange={tableNumberChange}
-                      value={tableNumber}
-                      bg="gray.300"
+          <Form method="post">
+            <ModalBody mx={4}>
+              <VStack>
+                <Stack spacing={4}>
+                  <FormControl>
+                    <Heading fontSize="1.75rem" mb={4}>
+                      注文内容
+                    </Heading>
+                    <Stack spacing={3}>
+                      {order.map((item) => (
+                        <Stack key={item.product_id} spacing={0}>
+                          <Text>
+                            商品名：{item.product_name} 商品ID：
+                            {item.product_id}
+                          </Text>
+                          <Text>数量：{item.quantity}</Text>
+                        </Stack>
+                      ))}
+                    </Stack>
+                    <Text>--------------------------------------------</Text>
+                    <Text>合計：{total}円</Text>
+                    <Text>
+                      テーブル番号：
+                      <Input
+                        type="number"
+                        name="table_number"
+                        onChange={tableNumberChange}
+                        value={tableNumber}
+                        bg="gray.300"
+                      />
+                    </Text>
+                    <Text mt={4}>注文メモ：</Text>
+                    <Textarea
+                      name="order_memo"
+                      placeholder="注文全体に対する特別な指示があればこちらに入力してください"
+                      ref={orderMemoRef}
+                      size="sm"
+                      resize="vertical"
                     />
-                  </Text>
-                  <Text mt={4}>注文メモ：</Text>
-                  <Textarea
-                    placeholder="注文全体に対する特別な指示があればこちらに入力してください"
-                    value={orderMemo}
-                    onChange={(e) => handleMemoChange(e.target.value)}
-                    size="sm"
-                    resize="vertical"
-                  />
-                </FormControl>
-              </Stack>
-              <Calculator total={total} />
-            </VStack>
-          </ModalBody>
-          <ModalFooter gap={4}>
-            <Form method="post">
+                  </FormControl>
+                </Stack>
+                <Calculator total={total} />
+              </VStack>
+            </ModalBody>
+            <ModalFooter gap={4}>
               {order.map((item) => (
                 <div key={item.product_id}>
                   <Input type="hidden" value={item.product_name} />
@@ -255,13 +253,11 @@ export default function Reception() {
                   <Input type="hidden" value={item.quantity} name="quantity" />
                 </div>
               ))}
-              <Input type="hidden" value={tableNumber} name="table_number" />
-              <Input type="hidden" value={orderMemo} name="order_memo" />
               <Button type="submit" colorScheme="blue">
                 確定
               </Button>
-            </Form>
-          </ModalFooter>
+            </ModalFooter>
+          </Form>
         </ModalContent>
       </Modal>
     </div>
