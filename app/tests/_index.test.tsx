@@ -27,10 +27,10 @@ const mockProducts = [
 ]
 
 const mockLoader = () => {
-  return Promise.resolve({
+  return {
     details: mockDetails,
     products: mockProducts,
-  })
+  }
 }
 
 describe("Home page", () => {
