@@ -62,19 +62,38 @@ export default function Kitchen() {
           const filteredProducts = products.filter((product) =>
             productIds.includes(product.product_id),
           )
-          const productNames = filteredProducts.map(
-            (product) => product.product_name,
+          const orderItems = filteredDetails.map((detail) => {
+            const product = filteredProducts.find(
+              (p) => p.product_id === detail.product_id,
+            )
+            return {
+              productName: product?.product_name || "",
+              quantity: detail.quantity,
+              deleted: product?.deleted_at != null,
+            }
+          })
+
+          const createTime = new Date(order.createTime).toLocaleString(
+            "ja-JP",
+            {
+              timeZone: "Asia/Tokyo",
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            },
           )
-          const quantities = filteredDetails.map((detail) => detail.quantity)
 
           return (
             <WrapItem key={order.order_id} mx="auto">
               <OrderCard
+                orderTime={createTime}
                 orderId={order.order_id}
-                productNames={productNames}
-                quantities={quantities}
+                orderItems={orderItems}
                 tableNumber={order.table_number}
                 status={order.status}
+                memo={order.memo}
               />
             </WrapItem>
           )
@@ -106,7 +125,7 @@ export default function Kitchen() {
 export const loader = async () => {
   const response_orders = await readOrder()
   const response_details = await readDetail()
-  const response_products = await readProduct()
+  const response_products = await readProduct({ includeDeleted: true })
   return json({
     orders: response_orders,
     details: response_details,

@@ -1,40 +1,56 @@
 //Productsの操作
 import { PrismaClient } from "@prisma/client"
+import { TypeProduct } from "~/type/typeproduct"
+import noImage from "~/assets/images/no_image.png?url"
 
 const prisma = new PrismaClient()
 
 //productの追加
-export async function createProduct(data: {
-  product_name: string
-  price: number
-}) {
+export async function createProduct(data: Omit<TypeProduct, "product_id">) {
   return await prisma.products.create({
     data: {
-      product_name: data.product_name,
-      price: data.price,
+      ...data,
+      image: data.image ?? noImage,
     },
   })
 }
 
 //productの読み込み
-export async function readProduct() {
-  return await prisma.products.findMany()
+export async function readProduct({ includeDeleted = false } = {}) {
+  return await prisma.products.findMany({
+    where: {
+      deleted_at: includeDeleted ? undefined : null,
+    },
+  })
 }
 
 //商品の変更
 export async function updateProduct(
   product_id: number,
-  product_name: string,
-  price: number,
+  data: Omit<TypeProduct, "product_id">,
 ) {
   return await prisma.products.update({
     where: {
-      product_id: product_id,
+      product_id,
     },
     data: {
-      product_name: product_name,
-      price: price,
+      ...data,
+      image: data.image ?? noImage,
     },
+  })
+}
+
+//在庫の変更
+export async function updateStock(data: {
+  product_id: number
+  stock: number | undefined
+  num: number
+}) {
+  return await prisma.products.update({
+    where: {
+      product_id: data.product_id,
+    },
+    data: { stock: data.stock ? data.stock - data.num : 0 },
   })
 }
 
@@ -44,6 +60,9 @@ export async function existProduct(name: string) {
     where: {
       product_name: {
         equals: name,
+      },
+      deleted_at: {
+        equals: null,
       },
     },
   })
@@ -55,21 +74,16 @@ export async function deleteAllProducts() {
 }
 
 //Productの削除
-// export async function deleteProduct(product_id: number) {
-//   console.log("Deleting product with ID:", product_id);
-//   return await prisma.products.delete({
-//     where: {
-//       product_id: product_id,
-//     },
-//   });
-// }
 export async function deleteProduct(product_id: number) {
   console.log("Deleting product with ID:", product_id)
 
   try {
-    const result = await prisma.products.delete({
+    const result = await prisma.products.update({
       where: {
-        product_id: product_id,
+        product_id,
+      },
+      data: {
+        deleted_at: new Date(),
       },
     })
     console.log("Product deleted successfully:", result)

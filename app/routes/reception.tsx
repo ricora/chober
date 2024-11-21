@@ -10,20 +10,22 @@ import {
   ModalCloseButton,
   ModalContent,
   ModalFooter,
-  ModalOverlay,
   Stack,
   Text,
+  Textarea,
   useDisclosure,
+  VStack,
   Wrap,
   WrapItem,
 } from "@chakra-ui/react"
-import { ActionFunction, ActionFunctionArgs, json } from "@remix-run/node"
+import { ActionFunction, json } from "@remix-run/node"
 import { Form, useActionData, useLoaderData } from "@remix-run/react"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import { Calculator } from "~/components/organisms/reception/Calculator"
 import { ReceptionCard } from "~/components/organisms/reception/ReceptionCard"
 import { createOrderDetail } from "~/crud/crud_details"
 import { createOrder } from "~/crud/crud_orders"
-import { readProduct } from "~/crud/crud_products"
+import { readProduct, updateStock } from "~/crud/crud_products"
 import { useMessage } from "~/hooks/useMessage"
 
 // type TypeOrder = {
@@ -49,6 +51,7 @@ export default function Reception() {
   const { products: products } = useLoaderData<typeof loader>()
   const [order, setOrder] = useState<TypeOrderDetail[]>([])
   const [total, setTotal] = useState(0)
+  const orderMemoRef = useRef<HTMLTextAreaElement>(null)
   // const [decision, setDecision] = useState(false)
   const actionData = useActionData<ActionData>()
   const { showMessage } = useMessage()
@@ -73,14 +76,15 @@ export default function Reception() {
 
   useEffect(() => {
     if (actionData?.success === true) {
-      setTotal(0)
-      // setDecision(false)
       setOrder([])
+      setTotal(0)
+      if (orderMemoRef.current) orderMemoRef.current.value = ""
       showMessage({ title: "注文しました", status: "success" })
       onClose()
       setTableNumber("")
     } else if (actionData?.success === false) {
-      showMessage({ title: "テーブル番号を記入してください", status: "error" })
+      const errorMessage = actionData.error || "エラーが発生しました"
+      showMessage({ title: errorMessage, status: "error" })
     }
   }, [actionData, onClose, showMessage])
 
@@ -88,6 +92,7 @@ export default function Reception() {
     product_id: number
     product_name: string
     price: number
+    stock: number
   }) => {
     setOrder((prevOrder) => {
       const existingProduct = prevOrder.find(
@@ -171,54 +176,72 @@ export default function Reception() {
       </Box>
       <div>
         <Wrap p={{ base: 4, md: 10 }}>
-          {products.map((product) => (
-            <WrapItem key={product.product_id} mx="auto">
-              <ReceptionCard
-                product={product}
-                addOrder={addOrder}
-                cancelOrder={cancelOrder}
-              />
-            </WrapItem>
-          ))}
+          {products.map((product) => {
+            const selectedOrder = order.find(
+              (order) => order.product_id === product.product_id,
+            )
+            return (
+              <WrapItem key={product.product_id} mx="auto">
+                <ReceptionCard
+                  quantity={selectedOrder?.quantity}
+                  product={product}
+                  addOrder={addOrder}
+                  cancelOrder={cancelOrder}
+                />
+              </WrapItem>
+            )
+          })}
         </Wrap>
       </div>
 
       <Modal isOpen={isOpen} onClose={onClose} motionPreset="slideInBottom">
-        <ModalOverlay />
         <ModalContent pb={2}>
           <ModalCloseButton />
-          <ModalBody mx={4}>
-            <Stack spacing={4}>
-              <FormControl>
-                <Heading fontSize="1.75rem" mb={4}>
-                  注文内容
-                </Heading>
-                <Stack spacing={3}>
-                  {order.map((item) => (
-                    <Stack key={item.product_id} spacing={0}>
-                      <Text>
-                        商品名：{item.product_name} 商品ID：{item.product_id}
-                      </Text>
-                      <Text>数量：{item.quantity}</Text>
+          <Form method="post">
+            <ModalBody mx={4}>
+              <VStack>
+                <Stack spacing={4}>
+                  <FormControl>
+                    <Heading fontSize="1.75rem" mb={4}>
+                      注文内容
+                    </Heading>
+                    <Stack spacing={3}>
+                      {order.map((item) => (
+                        <Stack key={item.product_id} spacing={0}>
+                          <Text>
+                            商品名：{item.product_name} 商品ID：
+                            {item.product_id}
+                          </Text>
+                          <Text>数量：{item.quantity}</Text>
+                        </Stack>
+                      ))}
                     </Stack>
-                  ))}
+                    <Text>--------------------------------------------</Text>
+                    <Text>合計：{total}円</Text>
+                    <Text>
+                      テーブル番号：
+                      <Input
+                        type="number"
+                        name="table_number"
+                        onChange={tableNumberChange}
+                        value={tableNumber}
+                        bg="gray.300"
+                      />
+                    </Text>
+                    <Text mt={4}>注文メモ：</Text>
+                    <Textarea
+                      name="order_memo"
+                      placeholder="注文全体に対する特別な指示があればこちらに入力してください"
+                      ref={orderMemoRef}
+                      size="sm"
+                      resize="vertical"
+                    />
+                  </FormControl>
                 </Stack>
-                <Text>--------------------------------------------</Text>
-                <Text>合計：{total}円</Text>
-                <Text>
-                  テーブル番号：
-                  <Input
-                    type="number"
-                    onChange={tableNumberChange}
-                    value={tableNumber}
-                    bg="gray.300"
-                  />
-                </Text>
-              </FormControl>
-            </Stack>
-          </ModalBody>
-          <ModalFooter gap={4}>
-            <Form method="post">
+                <Calculator total={total} />
+              </VStack>
+            </ModalBody>
+            <ModalFooter gap={4}>
               {order.map((item) => (
                 <div key={item.product_id}>
                   <Input type="hidden" value={item.product_name} />
@@ -230,12 +253,11 @@ export default function Reception() {
                   <Input type="hidden" value={item.quantity} name="quantity" />
                 </div>
               ))}
-              <Input type="hidden" value={tableNumber} name="table_number" />
               <Button type="submit" colorScheme="blue">
                 確定
               </Button>
-            </Form>
-          </ModalFooter>
+            </ModalFooter>
+          </Form>
         </ModalContent>
       </Modal>
     </div>
@@ -247,30 +269,45 @@ export const loader = async () => {
   return json({ products: response })
 }
 
-export const action: ActionFunction = async ({
-  request,
-}: ActionFunctionArgs) => {
+export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
 
   const product_ids = formData.getAll("product_id").map(Number)
   const quantities = formData.getAll("quantity").map(Number)
   const table_number = Number(formData.get("table_number"))
+  const order_memo = formData.get("order_memo") as string
+
+  if (order_memo.length > 100) {
+    return { success: false, error: "メモは100文字以内で入力してください" }
+  }
 
   if (table_number === 0) {
-    return { success: false }
+    return { success: false, error: "テーブル番号を入力してください" }
   } else {
     const order = await createOrder({
       table_number: table_number,
       status: "accept",
+      memo: order_memo,
     })
 
-    for (let i = 0; i < product_ids.length; i++) {
+    const products = await readProduct()
+
+    product_ids.map(async (product_id, index) => {
+      const quantity = quantities[index]
+      const product = products.find((p) => p.product_id === product_id)
+
       await createOrderDetail({
         order_id: order.order_id,
-        product_id: product_ids[i],
-        quantity: quantities[i],
+        product_id: product_id,
+        quantity: quantity,
       })
-    }
+
+      await updateStock({
+        product_id: product_id,
+        stock: product?.stock,
+        num: quantity,
+      })
+    })
 
     return { success: true }
   }

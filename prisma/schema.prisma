@@ -14,24 +14,31 @@ datasource db {
 }
 
 model Orders {
-  order_id        Int       @id @default(autoincrement())
-  table_number    Int
-  status          String
-  orderDetails    Order_details[]
+  order_id     Int             @id @default(autoincrement())
+  table_number Int
+  status       String
+  memo         String?
+  orderDetails Order_details[]
+  createTime   DateTime        @default(now())
 }
 
-model Order_details{
-  order_detail_id Int       @id @default(autoincrement())
+model Order_details {
+  order_detail_id Int      @id @default(autoincrement())
   order_id        Int
   product_id      Int
   quantity        Int
-  orders          Orders    @relation(fields: [order_id], references: [order_id])
-  products        Products  @relation(fields: [product_id], references: [product_id])
+  orders          Orders   @relation(fields: [order_id], references: [order_id])
+  products        Products @relation(fields: [product_id], references: [product_id])
 }
 
-model Products{
-  product_id      Int       @id @default(autoincrement())
-  product_name    String    @unique
-  price           Int
-  orderDetails    Order_details[]
+model Products {
+  product_id   Int             @id @default(autoincrement())
+  product_name String
+  price        Int
+  stock        Int
+  image        String
+  deleted_at   DateTime?
+  orderDetails Order_details[]
+
+  @@unique([product_name, deleted_at])
 }

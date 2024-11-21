@@ -3,16 +3,23 @@ import { Form } from "@remix-run/react"
 import { FC, memo } from "react"
 import PropTypes from "prop-types"
 
+type OrderItem = {
+  productName: string
+  quantity: number
+  deleted: boolean
+}
+
 type Props = {
+  orderTime: string
   orderId: number
-  productNames: (string | null | undefined)[]
+  orderItems: OrderItem[]
   status: string
-  quantities: (number | null | undefined)[]
   tableNumber: number
+  memo?: string
 }
 
 export const OrderCard: FC<Props> = memo((props) => {
-  const { orderId, productNames, status, quantities, tableNumber } = props
+  const { orderTime, orderId, orderItems, status, tableNumber, memo } = props
 
   return (
     <Box
@@ -24,15 +31,23 @@ export const OrderCard: FC<Props> = memo((props) => {
       p={4}
       overflowY="auto"
     >
-      <h1>{orderId}</h1>
+      <Text>{orderTime}</Text>
       <Stack textAlign={"center"}>
-        {productNames.map((name, index) => (
-          <Text key={index}>
-            {name}--数量：{quantities[index]}
-          </Text>
+        {orderItems.map((item, index) => (
+          <Box key={index}>
+            <Text>
+              {item.productName}
+              {item.deleted && " (削除済み)"} -- 数量：{item.quantity}
+            </Text>
+          </Box>
         ))}
         <Text>-------------------------</Text>
         <Text>テーブル番号：{tableNumber}</Text>
+        {memo && memo.trim() !== "" && (
+          <Text fontSize="sm" color="red.500" fontWeight="bold" mb={2}>
+            ※注文メモ：{memo}
+          </Text>
+        )}
         <Text>ステータス：{status}</Text>
         {status === "accept" ? (
           <Form method="post">
@@ -70,9 +85,17 @@ export const OrderCard: FC<Props> = memo((props) => {
 OrderCard.displayName = "OrderCard"
 
 OrderCard.propTypes = {
+  orderTime: PropTypes.string.isRequired,
   orderId: PropTypes.number.isRequired,
-  productNames: PropTypes.arrayOf(PropTypes.string).isRequired,
+  orderItems: PropTypes.arrayOf(
+    PropTypes.shape({
+      productName: PropTypes.string.isRequired,
+      quantity: PropTypes.number.isRequired,
+      memo: PropTypes.string,
+      deleted: PropTypes.bool.isRequired,
+    }).isRequired,
+  ).isRequired,
   status: PropTypes.string.isRequired,
-  quantities: PropTypes.arrayOf(PropTypes.number).isRequired,
   tableNumber: PropTypes.number.isRequired,
+  memo: PropTypes.string,
 }

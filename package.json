@@ -16,17 +16,20 @@
   "dependencies": {
     "@chakra-ui/icons": "^2.2.4",
     "@chakra-ui/react": "^2.10.2",
+    "@conform-to/react": "^1.2.2",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@prisma/client": "5.20.0",
     "@remix-run/node": "^2.12.0",
     "@remix-run/react": "^2.12.0",
     "@remix-run/serve": "^2.12.0",
+    "conform-to-valibot": "^1.11.0",
     "framer-motion": "^11.11.7",
     "isbot": "^4.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "recharts": "^2.13.0"
+    "recharts": "^2.13.0",
+    "valibot": "^1.0.0-beta.7"
   },
   "devDependencies": {
     "@remix-run/dev": "^2.12.0",

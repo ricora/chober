@@ -1,4 +1,4 @@
-import { Flex, Heading, Text, useDisclosure } from "@chakra-ui/react"
+import { Heading, HStack, Text, useDisclosure } from "@chakra-ui/react"
 import { Link, useNavigate } from "@remix-run/react"
 import { useCallback } from "react"
 import { MenuIconButton } from "~/components/atoms/button/MenuIconButton"
@@ -24,10 +24,20 @@ export default function Header() {
     navigate("/kitchen")
     onClose()
   }, [navigate, onClose])
+  const onClickOrderTable = useCallback(() => {
+    navigate("/order_table")
+    onClose()
+  }, [navigate, onClose])
 
   return (
     <>
-      <Flex bg="blackAlpha.100" padding={{ base: 3, lg: 5 }}>
+      <HStack
+        bg="blackAlpha.100"
+        padding={4}
+        gap={4}
+        backdropFilter="auto"
+        backdropBlur="lg"
+      >
         <MenuIconButton onOpen={onOpen} />
         <Heading _hover={{ cursor: "pointer" }}>
           <Link to="/">
@@ -36,7 +46,7 @@ export default function Header() {
             </Text>
           </Link>
         </Heading>
-      </Flex>
+      </HStack>
       <MenuDrawer
         onClose={onClose}
         isOpen={isOpen}
@@ -44,6 +54,7 @@ export default function Header() {
         onClickReception={onClickReception}
         onClickRegister={onClickRegister}
         onClickKitchen={onClickKitchen}
+        onClickOrderTable={onClickOrderTable}
       />
     </>
   )

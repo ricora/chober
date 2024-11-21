@@ -1,421 +1,401 @@
 import {
-  Box,
   Button,
-  FormControl,
-  FormLabel,
   Heading,
   Input,
   Modal,
   ModalBody,
   ModalCloseButton,
   ModalContent,
-  ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Stack,
+  Text,
   useDisclosure,
   VStack,
   Wrap,
   WrapItem,
 } from "@chakra-ui/react"
-import { ActionFunction, ActionFunctionArgs } from "@remix-run/node"
-import { Form, json, useActionData, useLoaderData } from "@remix-run/react"
-import { useState, useEffect } from "react"
+import { ActionFunctionArgs, TypedResponse } from "@remix-run/node"
+import { json, useActionData, useLoaderData } from "@remix-run/react"
+import { parseWithValibot } from "conform-to-valibot"
+import { FC, useEffect, useMemo, useState } from "react"
+import { Form } from "~/components/atoms/Form"
 import { ProductCard } from "~/components/organisms/register/ProductCard"
 import {
+  ProductForm,
+  createProductSchema,
+  updateProductSchema,
+} from "~/components/organisms/register/ProductForm"
+import {
   createProduct,
-  deleteAllProducts,
   deleteProduct,
   existProduct,
   readProduct,
   updateProduct,
 } from "~/crud/crud_products"
-import { useMessage } from "~/hooks/useMessage"
 import { TypeProduct } from "~/type/typeproduct"
+import * as v from "valibot"
+import { SubmissionResult } from "@conform-to/react"
+import { useMessage } from "~/hooks/useMessage"
+import noImage from "~/assets/images/no_image.png?url"
 
-type ActionData = {
-  success: boolean
-  error?: string
-  method?: string
+export const loader = async () => {
+  const products = await readProduct()
+  return json({ products })
 }
 
-export default function Register() {
-  const [name, setName] = useState("")
-  const [price, setPrice] = useState("")
-  const [isLoading, setLoading] = useState(false)
-  const actionData = useActionData<ActionData>()
-  const { showMessage } = useMessage()
-  const { products: products } = useLoaderData<typeof loader>()
-  const [isOpen, setOpen] = useState(false)
-  const {
-    isOpen: isDeleteOpen,
-    onOpen: onDeleteOpen,
-    onClose: onDeleteClose,
-  } = useDisclosure()
-  const {
-    isOpen: isDeleteAllOpen,
-    onOpen: onDeleteAllOpen,
-    onClose: onDeleteAllClose,
-  } = useDisclosure()
-  const {
-    isOpen: isChangeOpen,
-    onOpen: onChangeOpen,
-    onClose: onChangeClose,
-  } = useDisclosure()
-  const [deleteProduct, setDeleteProduct] = useState<TypeProduct | null>(null)
-  const [changeProduct, setChangeProduct] = useState<TypeProduct | null>(null)
+type ActionResponse = {
+  method?: string
+  success: boolean
+  message?: string
+  product_id?: number
+  result?: SubmissionResult<string[]>
+}
 
-  useEffect(() => {
-    if (actionData?.success && actionData?.method === "POST") {
-      setName("")
-      setPrice("")
-      setLoading(false)
-      showMessage({ title: "登録完了", status: "success" })
-    }
-
-    if (actionData?.error === "isExist" && actionData?.method === "POST") {
-      showMessage({ title: "すでに登録済みです", status: "error" })
-    } else if (actionData?.error && actionData?.method === "POST") {
-      showMessage({ title: "登録失敗", status: "error" })
-    }
-
-    if (actionData?.success && actionData?.method === "delete") {
-      showMessage({ title: "削除完了", status: "success" })
-      setDeleteProduct(null)
-      onDeleteClose()
-    }
-    if (actionData?.error && actionData?.method === "delete") {
-      showMessage({ title: "削除失敗", status: "error" })
-    }
-    if (actionData?.success && actionData?.method === "update") {
-      showMessage({ title: "変更完了", status: "success" })
-      setChangeProduct(null)
-      onChangeClose()
-    }
-    if (actionData?.error && actionData?.method === "update") {
-      showMessage({ title: "変更失敗", status: "error" })
-    }
-  }, [actionData, onDeleteClose, onChangeClose, showMessage])
-
-  const nameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setName(e.target.value)
+export const action = async ({
+  request,
+}: ActionFunctionArgs): Promise<TypedResponse<ActionResponse>> => {
+  if (request.method.toLocaleLowerCase() !== "post") {
+    return json(
+      { success: false, message: "不正なリクエストです" },
+      { status: 400 },
+    )
   }
 
-  const priceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPrice(e.target.value)
-  }
-
-  const productOpen = () => {
-    setOpen(true)
-  }
-
-  const productClose = () => {
-    setOpen(false)
-  }
-
-  const clickDelete = (product: TypeProduct) => {
-    setDeleteProduct(product)
-    onDeleteOpen()
-  }
-
-  const clickDeleteAll = () => {
-    onDeleteAllOpen()
-  }
-
-  const clickChange = (product: TypeProduct) => {
-    setChangeProduct(product)
-    onChangeOpen()
-  }
-
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (changeProduct) {
-      setChangeProduct({
-        ...changeProduct,
-        product_name: e.target.value,
+  const formData = await request.formData()
+  const method = formData.get("_method")
+  switch (method) {
+    case "create": {
+      const product = parseWithValibot(formData, {
+        schema: createProductSchema,
       })
+      if (product.status !== "success") {
+        return json({
+          method: "create",
+          success: false,
+          result: product.reply(),
+        })
+      }
+      try {
+        const isExist = await existProduct(product.value.product_name)
+        if (isExist) {
+          return json({
+            method: "create",
+            success: false,
+            result: product.reply({
+              fieldErrors: {
+                product_name: ["同じ名前の商品がすでに存在します"],
+              },
+            }),
+          })
+        }
+        await createProduct({
+          product_name: product.value.product_name,
+          price: product.value.price,
+          stock: product.value.stock,
+          image: product.value.image,
+        })
+        return json({
+          method: "create",
+          success: true,
+          result: product.reply({ resetForm: true }),
+        })
+      } catch (error) {
+        return databaseErrorResponse("create", error)
+      }
     }
-  }
 
-  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (changeProduct) {
-      setChangeProduct({
-        ...changeProduct,
-        price: Number(e.target.value),
+    case "update": {
+      const product = parseWithValibot(formData, {
+        schema: updateProductSchema,
       })
+      if (product.status !== "success") {
+        return json({
+          method: "update",
+          success: false,
+          result: product.reply(),
+        })
+      }
+      try {
+        await updateProduct(product.value.product_id, {
+          product_name: product.value.product_name,
+          price: product.value.price,
+          stock: product.value.stock,
+          image: product.value.image,
+        })
+        return json({
+          method: "update",
+          success: true,
+          result: product.reply({ resetForm: true }),
+        })
+      } catch (error) {
+        return databaseErrorResponse("update", error)
+      }
+    }
+
+    case "delete": {
+      const product = parseWithValibot(formData, {
+        schema: deleteProductSchema,
+      })
+
+      if (product.status !== "success") {
+        return json({
+          method: "delete",
+          success: false,
+          result: product.reply(),
+        })
+      }
+      try {
+        await deleteProduct(product.value.product_id)
+        return json({
+          method: "delete",
+          success: true,
+          result: product.reply(),
+        })
+      } catch (error) {
+        return databaseErrorResponse("delete", error)
+      }
     }
   }
 
-  return (
-    <div>
-      <Button
-        colorScheme="red"
-        onClick={clickDeleteAll}
-        position="relative"
-        top="-2"
-        right="-850"
-        mb="4"
-      >
-        すべて削除
-      </Button>
-      <VStack>
-        <Box
-          bg="white"
-          w="400px"
-          h="300px"
-          borderRadius="10px"
-          shadow="md"
-          fontSize="xl"
-          p={4}
-        >
-          <Heading>商品登録フォーム</Heading>
-          <Form method="post">
-            <FormControl>
-              <FormLabel>商品名</FormLabel>
-              <Input
-                type="text"
-                name="product_name"
-                value={name}
-                onChange={nameChange}
-                bg="gray.200"
-                required
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel>価格（税込み）</FormLabel>
-              <Input
-                type="number"
-                name="price"
-                value={price}
-                onChange={priceChange}
-                bg="gray.200"
-                required
-              />
-            </FormControl>
-            <Button
-              type="submit"
-              colorScheme="blue"
-              isLoading={isLoading}
-              // position="absolute"
-              bottom="-45"
-              left="300"
-            >
-              登録
-            </Button>
-          </Form>
-        </Box>
-        {isOpen ? (
-          <Button colorScheme="blue" onClick={productClose}>
-            閉じる
-          </Button>
-        ) : (
-          <Button colorScheme="blue" onClick={productOpen}>
-            商品一覧
-          </Button>
-        )}
-        {isOpen ? (
-          <div>
-            <Wrap p={{ base: 4, md: 10 }}>
-              {products.map((product) => (
-                <WrapItem key={product.product_id} mx="auto">
-                  <ProductCard
-                    product={product}
-                    clickDelete={clickDelete}
-                    clickChange={clickChange}
-                  />
-                </WrapItem>
-              ))}
-            </Wrap>
-          </div>
-        ) : null}
-      </VStack>
-      <Modal
-        isOpen={isDeleteOpen}
-        onClose={onDeleteClose}
-        motionPreset="slideInBottom"
-      >
-        <ModalOverlay />
-        <ModalContent pb={2}>
-          <ModalBody mx={4}>
-            <p>{deleteProduct?.product_name}を本当に削除しますか？</p>
-            <br />
-            <Form method="post">
-              <Input type="hidden" name="_method" value="delete" />
-              <Input
-                type="hidden"
-                value={deleteProduct?.product_id}
-                name="product_id"
-              />
-              <Button w="100%" type="submit">
-                はい
-              </Button>
-            </Form>
-            <Button w="100%" onClick={onDeleteClose}>
-              いいえ
-            </Button>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-
-      <Modal
-        isOpen={isDeleteAllOpen}
-        onClose={onDeleteAllClose}
-        motionPreset="slideInBottom"
-      >
-        <ModalOverlay />
-        <ModalContent pb={2}>
-          <ModalBody mx={4}>
-            <p>本当にすべて削除しますか？</p>
-            <br />
-            <Form method="post">
-              <Input type="hidden" name="_method" value="delete_all" />
-              <Button w="100%" type="submit">
-                はい
-              </Button>
-            </Form>
-            <Button w="100%" onClick={onDeleteAllClose}>
-              いいえ
-            </Button>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-
-      <Modal
-        isOpen={isChangeOpen}
-        onClose={onChangeClose}
-        motionPreset="slideInBottom"
-      >
-        <ModalOverlay />
-        <ModalContent pb={2}>
-          <ModalHeader>ユーザー詳細</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody mx={4}>
-            <Stack spacing={4}>
-              <FormControl>
-                <FormLabel>商品名</FormLabel>
-                <Input
-                  type="text"
-                  value={changeProduct?.product_name}
-                  onChange={handleNameChange}
-                />
-              </FormControl>
-              <FormControl>
-                <FormLabel>価格（税込み）</FormLabel>
-                <Input
-                  type="number"
-                  value={changeProduct?.price}
-                  onChange={handlePriceChange}
-                />
-              </FormControl>
-            </Stack>
-          </ModalBody>
-          <ModalFooter gap={4}>
-            <Form method="post">
-              <Input type="hidden" name="_method" value="update" />
-              <Input
-                type="hidden"
-                value={changeProduct?.product_id}
-                name="product_id"
-              />
-              <Input
-                type="hidden"
-                value={changeProduct?.product_name}
-                name="product_name"
-              />
-              <Input type="hidden" value={changeProduct?.price} name="price" />
-              <Button type="submit" colorScheme="green">
-                更新
-              </Button>
-            </Form>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </div>
+  return json(
+    {
+      method: method?.toString(),
+      success: false,
+      message: "不正なリクエストです",
+    },
+    { status: 400 },
   )
 }
 
-export const loader = async () => {
-  const response = await readProduct()
-  return json({ products: response })
+const databaseErrorResponse = (method: string, error: unknown) => {
+  return json({
+    method,
+    success: false,
+    message:
+      typeof error === "object" && error != null && "message" in error
+        ? String(error.message)
+        : "不明なデータベースエラーが発生しました",
+  } satisfies ActionResponse)
 }
 
-export const action: ActionFunction = async ({
-  request,
-}: ActionFunctionArgs) => {
-  const formData = await request.formData()
-  const method = formData.get("_method")
+const Register = () => {
+  return (
+    <VStack gap={12}>
+      <CreateProductForm />
+      <Products />
+    </VStack>
+  )
+}
+export default Register
 
-  if (
-    request.method === "POST" &&
-    method !== "delete" &&
-    method !== "update" &&
-    method !== "delete_all"
-  ) {
-    const product_name = formData.get("product_name")
-    const price = Number(formData.get("price"))
+const CreateProductForm: FC = () => {
+  const actionData = useActionData<typeof action>()
+  const lastResult = useLastResult("create", actionData)
+  const { showMessage } = useMessage()
 
-    if (typeof product_name === "string") {
-      const isExist = await existProduct(product_name)
-
-      if (isExist) {
-        return json({
-          success: false,
-          error: "isExist",
-          method: request.method,
-        })
-      }
-    }
-
-    if (typeof product_name === "string" && !isNaN(price)) {
-      await createProduct({
-        product_name,
-        price,
-      })
-
-      return json({ success: true, method: request.method })
+  useEffect(() => {
+    if (actionData?.method !== "create") return
+    if (actionData.success) {
+      showMessage({ title: "登録完了", status: "success" })
     } else {
-      return json({
-        success: false,
-        error: "Invalid input",
-        method: request.method,
+      showMessage({
+        title: actionData.message ? actionData.message : "登録失敗",
+        status: "error",
       })
     }
-  } else if (method === "delete") {
-    const product_id = Number(formData.get("product_id"))
-    console.log("Method:", method)
-    console.log("Product ID:", product_id)
-    if (!isNaN(product_id)) {
-      try {
-        await deleteProduct(product_id)
-        return json({ success: true, method: method })
-      } catch (error) {
-        return json({
-          success: false,
-          error: "Failed to delete product",
-          method: method,
-        })
-      }
-    } else {
-      return json({
-        success: false,
-        error: "Invalid product ID",
-        method: method,
-      })
-    }
-  } else if (method === "update") {
-    const product_id = Number(formData.get("product_id"))
-    const product_name = formData.get("product_name")
-    const price = Number(formData.get("price"))
+  }, [actionData, showMessage])
 
-    if (typeof product_name === "string") {
-      await updateProduct(product_id, product_name, price)
-      return json({ success: true, method: method })
-    } else {
-      return json({ success: false, error: "no product_name", method: method })
-    }
-  } else if (method == "delete_all") {
-    await deleteAllProducts()
-    return json({ success: true, method: method })
-  } else {
-    return json({ success: false, error: "Unsupported request method" })
+  return (
+    <VStack
+      w="full"
+      maxW="400px"
+      gap="4"
+      bg="white"
+      h="fit-content"
+      borderRadius="10px"
+      shadow="md"
+      fontSize="xl"
+      p={4}
+    >
+      <Heading fontSize="2xl" alignSelf="start">
+        商品登録フォーム
+      </Heading>
+      <ProductForm _method="create" submitText="登録" lastResult={lastResult} />
+    </VStack>
+  )
+}
+
+const Products: FC = () => {
+  const { products } = useLoaderData<typeof loader>()
+  const [isOpen, setOpen] = useState(false)
+  const [changeProduct, setChangeProduct] = useState<TypeProduct | null>(null)
+  const [deleteProduct, setDeleteProduct] = useState<TypeProduct | null>(null)
+  const changeModal = useDisclosure()
+  const deleteModal = useDisclosure()
+
+  const onClickChange = (product: TypeProduct) => {
+    setChangeProduct(product)
+    changeModal.onOpen()
   }
+
+  const onClickDelete = (product: TypeProduct) => {
+    setDeleteProduct(product)
+    deleteModal.onOpen()
+  }
+
+  return (
+    <VStack>
+      {isOpen ? (
+        <Button colorScheme="blue" onClick={() => setOpen(false)}>
+          閉じる
+        </Button>
+      ) : (
+        <Button colorScheme="blue" onClick={() => setOpen(true)}>
+          商品一覧
+        </Button>
+      )}
+      {isOpen && (
+        <>
+          <Wrap p={{ base: 4, md: 10 }}>
+            {products.map((product) => (
+              <WrapItem key={product.product_id} mx="auto">
+                <ProductCard
+                  product={product}
+                  clickDelete={onClickDelete}
+                  clickChange={onClickChange}
+                />
+              </WrapItem>
+            ))}
+          </Wrap>
+        </>
+      )}
+      <ChangeProductModal
+        product={changeProduct}
+        isOpen={changeModal.isOpen}
+        onClose={changeModal.onClose}
+      />
+      <DeleteProductModal
+        product={deleteProduct}
+        isOpen={deleteModal.isOpen}
+        onClose={deleteModal.onClose}
+      />
+    </VStack>
+  )
+}
+
+const ChangeProductModal: FC<{
+  product: TypeProduct | null
+  isOpen: boolean
+  onClose: () => void
+}> = ({ product, isOpen, onClose }) => {
+  const actionData = useActionData<typeof action>()
+  const lastResult = useLastResult("update", actionData)
+  const { showMessage } = useMessage()
+
+  useEffect(() => {
+    if (actionData?.method !== "update") return
+    if (actionData.success) {
+      showMessage({ title: "変更完了", status: "success" })
+      onClose()
+    } else {
+      showMessage({
+        title: actionData.message ? actionData.message : "変更失敗",
+        status: "error",
+      })
+    }
+  }, [actionData, onClose, showMessage])
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} motionPreset="slideInBottom">
+      <ModalOverlay />
+      <ModalContent pb={2}>
+        <ModalCloseButton />
+        <ModalHeader>商品情報変更</ModalHeader>
+        <ModalBody>
+          <ProductForm
+            _method="update"
+            submitText="変更"
+            lastResult={lastResult}
+            defaultValue={{
+              ...product,
+              image: product?.image === noImage ? "" : product?.image,
+            }}
+          />
+        </ModalBody>
+      </ModalContent>
+    </Modal>
+  )
+}
+
+const deleteProductSchema = v.object({
+  product_id: v.pipe(
+    v.number("製品IDは数字で入力してください"),
+    v.integer("製品IDは整数で入力してください"),
+    v.minValue(0, "製品IDは0以上で入力してください"),
+  ),
+})
+
+const DeleteProductModal: FC<{
+  product: TypeProduct | null
+  isOpen: boolean
+  onClose: () => void
+}> = ({ product, isOpen, onClose }) => {
+  const actionData = useActionData<typeof action>()
+  const { showMessage } = useMessage()
+
+  useEffect(() => {
+    if (actionData?.method !== "delete") return
+    if (actionData.success) {
+      showMessage({ title: "削除完了", status: "success" })
+      onClose()
+    } else {
+      showMessage({
+        title: actionData.message ? actionData.message : "削除失敗",
+        status: "error",
+      })
+    }
+  }, [actionData, onClose, showMessage])
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} motionPreset="slideInBottom">
+      <ModalOverlay />
+      <ModalContent pb={2}>
+        <ModalCloseButton />
+        <ModalHeader>商品削除</ModalHeader>
+        <ModalBody mx={4}>
+          <Text>{product?.product_name}を本当に削除しますか？</Text>
+          <br />
+          <Form method="post">
+            <Input type="hidden" value="delete" name="_method" />
+            <Input
+              type="hidden"
+              value={product?.product_id}
+              name="product_id"
+            />
+            <Button w="100%" type="submit">
+              はい
+            </Button>
+          </Form>
+          <Button w="100%" onClick={onClose}>
+            いいえ
+          </Button>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
+  )
+}
+
+const useLastResult = (
+  method: string,
+  actionData: ActionResponse | undefined,
+) => {
+  return useMemo(() => {
+    if (
+      actionData != null &&
+      "method" in actionData &&
+      actionData?.method === method
+    ) {
+      return actionData.result
+    }
+  }, [actionData, method])
 }
