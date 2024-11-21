@@ -11,7 +11,8 @@
     "format": "prettier --check .",
     "format:write": "prettier --write .",
     "start": "remix-serve ./build/server/index.js",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "test": "vitest"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.2.4",
