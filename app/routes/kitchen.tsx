@@ -9,37 +9,24 @@ import {
   Wrap,
   WrapItem,
 } from "@chakra-ui/react"
-import { ActionFunction, ActionFunctionArgs } from "@remix-run/node"
-import { Form, json, useLoaderData } from "@remix-run/react"
-import { OrderCard } from "~/components/organisms/kitchen/OrderCard"
-import { deleteAllDetails, readDetail } from "~/crud/crud_details"
+import { PrismaClient } from "@prisma/client"
 import {
-  deleteAllOrders,
-  readOrder,
-  updateOrderStatus,
-} from "~/crud/crud_orders"
-import { readProduct } from "~/crud/crud_products"
-import { useKitchenData } from "~/hooks/useKitchenData"
-import { TypeDetail } from "~/type/typedetail"
-import { TypeOrder } from "~/type/typeorder"
-import { TypeProduct } from "~/type/typeproduct"
+  ActionFunction,
+  ActionFunctionArgs,
+  SerializeFrom,
+} from "@remix-run/node"
+import { Form, json, useFetcher, useLoaderData } from "@remix-run/react"
+import { useEffect, useState } from "react"
+import { OrderCard } from "~/components/organisms/kitchen/OrderCard"
+import { deleteAllDetails } from "~/crud/crud_details"
+import { deleteAllOrders, updateOrderStatus } from "~/crud/crud_orders"
 
 export default function Kitchen() {
-  const initialData = useLoaderData<{
-    orders: TypeOrder[]
-    details: TypeDetail[]
-    products: TypeProduct[]
-  }>()
+  const initialData = useLoaderData<typeof loader>()
 
   const { isOpen, onOpen, onClose } = useDisclosure()
 
-  const { orders, details, products } = useKitchenData(
-    initialData.orders,
-    initialData.details,
-    initialData.products,
-  )
-
-  const filteredOrders = orders.filter((order) => order.status !== "finish")
+  const { orders } = useKitchenData(initialData)
 
   return (
     <>
@@ -54,25 +41,7 @@ export default function Kitchen() {
         すべて削除
       </Button>
       <Wrap>
-        {filteredOrders.map((order) => {
-          const filteredDetails = details.filter(
-            (detail) => detail.order_id === order.order_id,
-          )
-          const productIds = filteredDetails.map((detail) => detail.product_id)
-          const filteredProducts = products.filter((product) =>
-            productIds.includes(product.product_id),
-          )
-          const orderItems = filteredDetails.map((detail) => {
-            const product = filteredProducts.find(
-              (p) => p.product_id === detail.product_id,
-            )
-            return {
-              productName: product?.product_name || "",
-              quantity: detail.quantity,
-              deleted: product?.deleted_at != null,
-            }
-          })
-
+        {orders.map((order) => {
           const createTime = new Date(order.createTime).toLocaleString(
             "ja-JP",
             {
@@ -90,10 +59,16 @@ export default function Kitchen() {
               <OrderCard
                 orderTime={createTime}
                 orderId={order.order_id}
-                orderItems={orderItems}
+                orderItems={order.orderDetails.map(
+                  ({ products, quantity }) => ({
+                    productName: products.product_name,
+                    quantity,
+                    deleted: products.deleted_at !== null,
+                  }),
+                )}
                 tableNumber={order.table_number}
                 status={order.status}
-                memo={order.memo}
+                memo={order.memo ?? ""}
               />
             </WrapItem>
           )
@@ -123,13 +98,23 @@ export default function Kitchen() {
 }
 
 export const loader = async () => {
-  const response_orders = await readOrder()
-  const response_details = await readDetail()
-  const response_products = await readProduct({ includeDeleted: true })
+  const prisma = new PrismaClient()
+  const orders = await prisma.orders.findMany({
+    where: {
+      status: {
+        not: "finish",
+      },
+    },
+    include: {
+      orderDetails: {
+        include: {
+          products: true,
+        },
+      },
+    },
+  })
   return json({
-    orders: response_orders,
-    details: response_details,
-    products: response_products,
+    orders,
   })
 }
 
@@ -160,4 +145,26 @@ export const action: ActionFunction = async ({
   } else {
     return { success: false }
   }
+}
+
+const useKitchenData = (data: SerializeFrom<typeof loader>) => {
+  const [orders, setOrders] = useState<(typeof data)["orders"]>([])
+
+  const fetcher = useFetcher<typeof data>()
+
+  useEffect(() => {
+    if (fetcher.data) {
+      setOrders(fetcher.data.orders)
+    }
+  }, [fetcher.data])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetcher.load("/kitchen")
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [fetcher])
+
+  return { orders }
 }
