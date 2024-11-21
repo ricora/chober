@@ -27,6 +27,23 @@ fi
 # Before starting the app, ensure WAL mode is disabled for Prisma compatibility
 sqlite3 /app/db/prod.db "PRAGMA journal_mode=DELETE;"
 
+# Check for migration mode
+if [ "${RUN_MIGRATIONS}" = "true" ]; then
+
+    echo "Migration mode detected. Running migrations..."
+    
+    # WAL mode must be disabled for Prisma compatibility
+    sqlite3 /app/db/prod.db "PRAGMA journal_mode=DELETE;"
+    
+    # Run Prisma migrations
+    DATABASE_URL="file:/app/db/prod.db" npx prisma migrate deploy
+    
+    echo "Migrations completed successfully"
+else
+    # WAL mode must be disabled for Prisma compatibility
+    sqlite3 /app/db/prod.db "PRAGMA journal_mode=DELETE;"
+fi
+
 # Start Litestream replication with the app as the subprocess
 exec litestream replicate \
     -config /app/litestream.yml \

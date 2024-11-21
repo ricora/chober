@@ -68,8 +68,9 @@ FROM node:22-slim AS runner
 WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     sqlite3 \
+    sqlite3-tools \
     ca-certificates \
-    gettext-base \
+    gzip \
     && rm -rf /var/lib/apt/lists/*
 RUN mkdir -p /app/db && \
     chown -R node:node /app
