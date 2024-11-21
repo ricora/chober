@@ -42,7 +42,7 @@ export default function Header() {
         <Heading _hover={{ cursor: "pointer" }}>
           <Link to="/">
             <Text fontSize="4xl" fontFamily='"Times New Roman", serif'>
-              Order
+              Chober
             </Text>
           </Link>
         </Heading>

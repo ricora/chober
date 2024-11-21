@@ -1,6 +1,8 @@
-# Order
-
-学園祭のための注文管理アプリ
+<div align="center">
+  <img alt="" src="./static/icon.svg" width="128" height="128">
+  <h1>Chober</h1>
+  <p>Chober (帳場 + order + cyber) is an order management web application for food stalls at school festivals.</p>
+</div>
 
 ## 開発環境のセットアップ
 
