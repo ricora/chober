@@ -8,28 +8,112 @@ import {
   Td,
   TableCaption,
   TableContainer,
+  ButtonGroup,
+  Button,
+  Select,
+  HStack,
 } from "@chakra-ui/react"
-import { json, useLoaderData } from "@remix-run/react"
-import { readDetail } from "~/crud/crud_details"
-import { readOrder } from "~/crud/crud_orders"
-import { readProduct } from "~/crud/crud_products"
-import { useKitchenData } from "~/hooks/useKitchenData"
-import { TypeDetail } from "~/type/typedetail"
-import { TypeOrder } from "~/type/typeorder"
-import { TypeProduct } from "~/type/typeproduct"
+import {
+  json,
+  useLoaderData,
+  useSearchParams,
+  useNavigate,
+} from "@remix-run/react"
+import { PrismaClient } from "@prisma/client"
+import {
+  createColumnHelper,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+  getPaginationRowModel,
+} from "@tanstack/react-table"
+import { LoaderFunctionArgs } from "@remix-run/node"
 
 export default function OrderTable() {
-  const data = useLoaderData<{
-    orders: TypeOrder[]
-    details: TypeDetail[]
-    products: TypeProduct[]
-  }>()
+  const { orders, totalCount } = useLoaderData<typeof loader>()
+  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
 
-  const { orders, details, products } = useKitchenData(
-    data.orders,
-    data.details,
-    data.products,
-  )
+  const pageIndex = Number(searchParams.get("page")) || 0
+  const pageSize = Number(searchParams.get("size")) || 10
+
+  const columnHelper = createColumnHelper<(typeof orders)[number]>()
+
+  const columns = [
+    columnHelper.accessor("order_id", {
+      header: "ID",
+      cell: (info) => info.getValue(),
+    }),
+    columnHelper.accessor("createTime", {
+      header: "注文日時",
+      cell: (info) =>
+        new Date(info.getValue()).toLocaleString("ja-JP", {
+          timeZone: "Asia/Tokyo",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+    }),
+    columnHelper.accessor("table_number", {
+      header: "テーブル番号",
+      cell: (info) => info.getValue(),
+    }),
+    columnHelper.accessor("orderDetails", {
+      header: "注文内容",
+      cell: (info) =>
+        info.getValue().map(({ products, quantity }, index) => (
+          <div key={index}>
+            {products.product_name}
+            {products.deleted_at != null && " (削除済み)"} -- 数量：
+            {quantity}
+          </div>
+        )),
+    }),
+    columnHelper.accessor("orderDetails", {
+      id: "totalPrice",
+      header: "売上",
+      cell: (info) => {
+        const total = info
+          .getValue()
+          .reduce(
+            (sum, detail) => sum + detail.products.price * detail.quantity,
+            0,
+          )
+        return `¥${total}`
+      },
+    }),
+    columnHelper.accessor("status", {
+      header: "ステータス",
+      cell: (info) => info.getValue(),
+    }),
+  ]
+
+  const table = useReactTable({
+    data: orders,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    pageCount: Math.ceil(totalCount / pageSize),
+    state: {
+      pagination: {
+        pageIndex,
+        pageSize,
+      },
+    },
+    manualPagination: true,
+    onPaginationChange: (updater) => {
+      const newState =
+        typeof updater === "function"
+          ? updater(table.getState().pagination)
+          : updater
+      const newParams = new URLSearchParams(searchParams)
+      newParams.set("page", String(newState.pageIndex))
+      newParams.set("size", String(newState.pageSize))
+      navigate(`?${newParams.toString()}`)
+    },
+  })
 
   return (
     <Box p={4} bg={"white"}>
@@ -37,87 +121,112 @@ export default function OrderTable() {
         <Table variant="striped" colorScheme="gray">
           <TableCaption>注文履歴一覧</TableCaption>
           <Thead>
-            <Tr>
-              <Th>ID</Th>
-              <Th>注文日時</Th>
-              <Th>テーブル番号</Th>
-              <Th>注文内容</Th>
-              <Th>売上</Th>
-              <Th>ステータス</Th>
-            </Tr>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <Tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <Th key={header.id}>
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext(),
+                    )}
+                  </Th>
+                ))}
+              </Tr>
+            ))}
           </Thead>
           <Tbody>
-            {orders.map((order) => {
-              const filteredDetails = details.filter(
-                (detail) => detail.order_id === order.order_id,
-              )
-              const productIds = filteredDetails.map(
-                (detail) => detail.product_id,
-              )
-              const filteredProducts = products.filter((product) =>
-                productIds.includes(product.product_id),
-              )
-              const quantities = filteredDetails.map(
-                (detail) => detail.quantity,
-              )
-              const totalPrice = filteredDetails.reduce(
-                (sum, detail) =>
-                  sum +
-                  detail.quantity *
-                    products
-                      .filter(
-                        (product) => detail.product_id === product.product_id,
-                      )
-                      .reduce((sum, product) => sum + product.price, 0),
-                0,
-              )
-              const createTime = new Date(order.createTime).toLocaleString(
-                "ja-JP",
-                {
-                  timeZone: "Asia/Tokyo",
-                  year: "numeric",
-                  month: "2-digit",
-                  day: "2-digit",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                },
-              )
-
-              return (
-                <Tr key={order.order_id}>
-                  <Td>{order.order_id}</Td>
-                  <Td>{createTime}</Td>
-                  <Td>{order.table_number}</Td>
-                  <Td>
-                    {filteredProducts.map(
-                      ({ product_name, deleted_at }, index) => (
-                        <div key={index}>
-                          {product_name}
-                          {deleted_at != null && " (削除済み)"} -- 数量：
-                          {quantities[index]}
-                        </div>
-                      ),
-                    )}
+            {table.getRowModel().rows.map((row) => (
+              <Tr key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <Td key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </Td>
-                  <Td>{totalPrice}円</Td>
-                  <Td>{order.status}</Td>
-                </Tr>
-              )
-            })}
+                ))}
+              </Tr>
+            ))}
           </Tbody>
         </Table>
+        <HStack spacing={4} mt={4} justify="flex-end">
+          <ButtonGroup size="sm" variant="outline">
+            <Button
+              onClick={() => table.setPageIndex(0)}
+              isDisabled={!table.getCanPreviousPage()}
+            >
+              {"<<"}
+            </Button>
+            <Button
+              onClick={() => table.previousPage()}
+              isDisabled={!table.getCanPreviousPage()}
+            >
+              前へ
+            </Button>
+            <Button
+              onClick={() => table.nextPage()}
+              isDisabled={!table.getCanNextPage()}
+            >
+              次へ
+            </Button>
+            <Button
+              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+              isDisabled={!table.getCanNextPage()}
+            >
+              {">>"}
+            </Button>
+          </ButtonGroup>
+          <HStack spacing={2}>
+            <span>
+              全{totalCount}件中 {pageIndex * pageSize + 1} -{" "}
+              {Math.min((pageIndex + 1) * pageSize, totalCount)}件表示
+            </span>
+            <Select
+              w="auto"
+              value={pageSize}
+              onChange={(e) => {
+                const newParams = new URLSearchParams(searchParams)
+                newParams.set("size", e.target.value)
+                newParams.set("page", "0")
+                navigate(`?${newParams.toString()}`)
+              }}
+            >
+              {[10, 20, 30, 40, 50].map((pageSize) => (
+                <option key={pageSize} value={pageSize}>
+                  {pageSize}件表示
+                </option>
+              ))}
+            </Select>
+          </HStack>
+        </HStack>
       </TableContainer>
     </Box>
   )
 }
 
-export const loader = async () => {
-  const response_orders = await readOrder()
-  const response_details = await readDetail()
-  const response_products = await readProduct({ includeDeleted: true })
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const prisma = new PrismaClient()
+  const url = new URL(request.url)
+  const page = Number(url.searchParams.get("page")) || 0
+  const size = Number(url.searchParams.get("size")) || 10
+
+  const [orders, totalCount] = await prisma.$transaction([
+    prisma.orders.findMany({
+      skip: page * size,
+      take: size,
+      include: {
+        orderDetails: {
+          include: {
+            products: true,
+          },
+        },
+      },
+      orderBy: {
+        createTime: "desc",
+      },
+    }),
+    prisma.orders.count(),
+  ])
+
   return json({
-    orders: response_orders,
-    details: response_details,
-    products: response_products,
+    orders,
+    totalCount,
   })
 }
