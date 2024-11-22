@@ -85,7 +85,7 @@ export const ProductForm: FC<ProductFormProps> = ({
     },
     constraint: getValibotConstraint(schema),
     lastResult: navigation.state === "idle" ? lastResult : null,
-    shouldValidate: "onBlur",
+    shouldValidate: "onInput",
     shouldRevalidate: "onInput",
     onValidate: ({ formData }) => parseWithValibot(formData, { schema }),
   })
