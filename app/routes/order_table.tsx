@@ -13,7 +13,12 @@ import {
   Select,
   HStack,
 } from "@chakra-ui/react"
-import { json, useLoaderData } from "@remix-run/react"
+import {
+  json,
+  useLoaderData,
+  useSearchParams,
+  useNavigate,
+} from "@remix-run/react"
 import { PrismaClient } from "@prisma/client"
 import {
   createColumnHelper,
@@ -22,9 +27,15 @@ import {
   useReactTable,
   getPaginationRowModel,
 } from "@tanstack/react-table"
+import { LoaderFunctionArgs } from "@remix-run/node"
 
 export default function OrderTable() {
-  const { orders } = useLoaderData<typeof loader>()
+  const { orders, totalCount } = useLoaderData<typeof loader>()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
+
+  const pageIndex = Number(searchParams.get("page")) || 0
+  const pageSize = Number(searchParams.get("size")) || 10
 
   const columnHelper = createColumnHelper<(typeof orders)[number]>()
 
@@ -84,10 +95,23 @@ export default function OrderTable() {
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    initialState: {
+    pageCount: Math.ceil(totalCount / pageSize),
+    state: {
       pagination: {
-        pageSize: 10,
+        pageIndex,
+        pageSize,
       },
+    },
+    manualPagination: true,
+    onPaginationChange: (updater) => {
+      const newState =
+        typeof updater === "function"
+          ? updater(table.getState().pagination)
+          : updater
+      const newParams = new URLSearchParams(searchParams)
+      newParams.set("page", String(newState.pageIndex))
+      newParams.set("size", String(newState.pageSize))
+      navigate(`?${newParams.toString()}`)
     },
   })
 
@@ -151,14 +175,17 @@ export default function OrderTable() {
           </ButtonGroup>
           <HStack spacing={2}>
             <span>
-              ページ {table.getState().pagination.pageIndex + 1} /{" "}
-              {table.getPageCount()}
+              全{totalCount}件中 {pageIndex * pageSize + 1} -{" "}
+              {Math.min((pageIndex + 1) * pageSize, totalCount)}件表示
             </span>
             <Select
               w="auto"
-              value={table.getState().pagination.pageSize}
+              value={pageSize}
               onChange={(e) => {
-                table.setPageSize(Number(e.target.value))
+                const newParams = new URLSearchParams(searchParams)
+                newParams.set("size", e.target.value)
+                newParams.set("page", "0")
+                navigate(`?${newParams.toString()}`)
               }}
             >
               {[10, 20, 30, 40, 50].map((pageSize) => (
@@ -174,21 +201,32 @@ export default function OrderTable() {
   )
 }
 
-export const loader = async () => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const prisma = new PrismaClient()
-  const orders = await prisma.orders.findMany({
-    include: {
-      orderDetails: {
-        include: {
-          products: true,
+  const url = new URL(request.url)
+  const page = Number(url.searchParams.get("page")) || 0
+  const size = Number(url.searchParams.get("size")) || 10
+
+  const [orders, totalCount] = await prisma.$transaction([
+    prisma.orders.findMany({
+      skip: page * size,
+      take: size,
+      include: {
+        orderDetails: {
+          include: {
+            products: true,
+          },
         },
       },
-    },
-    orderBy: {
-      createTime: "desc",
-    },
-  })
+      orderBy: {
+        createTime: "desc",
+      },
+    }),
+    prisma.orders.count(),
+  ])
+
   return json({
     orders,
+    totalCount,
   })
 }
