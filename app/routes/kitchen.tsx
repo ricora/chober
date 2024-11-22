@@ -30,7 +30,7 @@ export default function Kitchen() {
 
   return (
     <>
-      <Button
+      {/* <Button
         colorScheme="red"
         onClick={onOpen}
         position="relative"
@@ -39,7 +39,7 @@ export default function Kitchen() {
         mb="4"
       >
         すべて削除
-      </Button>
+      </Button> */}
       <Wrap>
         {orders.map((order) => {
           const createTime = new Date(order.createTime).toLocaleString(
@@ -75,7 +75,7 @@ export default function Kitchen() {
         })}
       </Wrap>
 
-      <Modal isOpen={isOpen} onClose={onClose} motionPreset="slideInBottom">
+      {/* <Modal isOpen={isOpen} onClose={onClose} motionPreset="slideInBottom">
         <ModalOverlay />
         <ModalContent pb={2}>
           <ModalBody mx={4}>
@@ -92,7 +92,7 @@ export default function Kitchen() {
             </Button>
           </ModalBody>
         </ModalContent>
-      </Modal>
+      </Modal> */}
     </>
   )
 }
