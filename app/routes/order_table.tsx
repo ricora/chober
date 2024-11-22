@@ -31,7 +31,7 @@ import { LoaderFunctionArgs } from "@remix-run/node"
 
 export default function OrderTable() {
   const { orders, totalCount } = useLoaderData<typeof loader>()
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const navigate = useNavigate()
 
   const pageIndex = Number(searchParams.get("page")) || 0
