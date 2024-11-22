@@ -1,45 +1,22 @@
-import {
-  Button,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalOverlay,
-  useDisclosure,
-  Wrap,
-  WrapItem,
-} from "@chakra-ui/react"
+import { Wrap, WrapItem } from "@chakra-ui/react"
 import { PrismaClient } from "@prisma/client"
 import {
   ActionFunction,
   ActionFunctionArgs,
   SerializeFrom,
 } from "@remix-run/node"
-import { Form, json, useFetcher, useLoaderData } from "@remix-run/react"
+import { json, useFetcher, useLoaderData } from "@remix-run/react"
 import { useEffect, useState } from "react"
 import { OrderCard } from "~/components/organisms/kitchen/OrderCard"
-import { deleteAllDetails } from "~/crud/crud_details"
-import { deleteAllOrders, updateOrderStatus } from "~/crud/crud_orders"
+import { updateOrderStatus } from "~/crud/crud_orders"
 
 export default function Kitchen() {
   const initialData = useLoaderData<typeof loader>()
-
-  const { isOpen, onOpen, onClose } = useDisclosure()
 
   const { orders } = useKitchenData(initialData)
 
   return (
     <>
-      {/* <Button
-        colorScheme="red"
-        onClick={onOpen}
-        position="relative"
-        top="-2"
-        right="-850"
-        mb="4"
-      >
-        すべて削除
-      </Button> */}
       <Wrap>
         {orders.map((order) => {
           const createTime = new Date(order.createTime).toLocaleString(
@@ -74,25 +51,6 @@ export default function Kitchen() {
           )
         })}
       </Wrap>
-
-      {/* <Modal isOpen={isOpen} onClose={onClose} motionPreset="slideInBottom">
-        <ModalOverlay />
-        <ModalContent pb={2}>
-          <ModalBody mx={4}>
-            <p>本当にすべて削除しますか？</p>
-            <br />
-            <Form method="post">
-              <Input type="hidden" name="_method" value="delete_all" />
-              <Button w="100%" type="submit">
-                はい
-              </Button>
-            </Form>
-            <Button w="100%" onClick={onClose}>
-              いいえ
-            </Button>
-          </ModalBody>
-        </ModalContent>
-      </Modal> */}
     </>
   )
 }
@@ -135,11 +93,6 @@ export const action: ActionFunction = async ({
     } else if (status === "finish") {
       updateOrderStatus(order_id, "finish")
     }
-
-    return { success: true }
-  } else if (method === "delete_all") {
-    deleteAllDetails()
-    deleteAllOrders()
 
     return { success: true }
   } else {
