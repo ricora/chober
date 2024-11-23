@@ -221,6 +221,15 @@ export default function Reception() {
                         name="table_number"
                         ref={tableNumberRef}
                         bg="gray.300"
+                        onFocus={(e) =>
+                          e.target.addEventListener(
+                            "wheel",
+                            (e) => {
+                              e.preventDefault()
+                            },
+                            { passive: false },
+                          )
+                        }
                       />
                     </Text>
                     <Text mt={4}>注文メモ：</Text>
