@@ -56,7 +56,7 @@ export default function Reception() {
   const actionData = useActionData<ActionData>()
   const { showMessage } = useMessage()
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const [tableNumber, setTableNumber] = useState("")
+  const tableNumberRef = useRef<HTMLInputElement>(null)
 
   // const fetcher = useFetcher();
 
@@ -81,7 +81,7 @@ export default function Reception() {
       if (orderMemoRef.current) orderMemoRef.current.value = ""
       showMessage({ title: "注文しました", status: "success" })
       onClose()
-      setTableNumber("")
+      if (tableNumberRef.current) tableNumberRef.current.value = ""
     } else if (actionData?.success === false) {
       const errorMessage = actionData.error || "エラーが発生しました"
       showMessage({ title: errorMessage, status: "error" })
@@ -143,10 +143,6 @@ export default function Reception() {
     setTotal(totalPrice)
     // setDecision(true)
     onOpen()
-  }
-
-  const tableNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTableNumber(e.target.value)
   }
 
   return (
@@ -223,8 +219,7 @@ export default function Reception() {
                       <Input
                         type="number"
                         name="table_number"
-                        onChange={tableNumberChange}
-                        value={tableNumber}
+                        ref={tableNumberRef}
                         bg="gray.300"
                       />
                     </Text>
