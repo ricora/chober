@@ -1,11 +1,7 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-  workflow_dispatch:
+  push
 
 jobs:
   lint:
@@ -55,3 +51,15 @@ jobs:
         run: bun install --frozen-lockfile
       - name: Build
         run: bun run build
+  
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+      - name: Setup tools
+        uses: jdx/mise-action@d6e32c1796099e0f1f3ac741c220a8b7eae9e5dd # v2
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Test
+        run: bun run test
